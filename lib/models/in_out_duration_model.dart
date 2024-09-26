@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class InOutDurationModel {
-  InOutDurationModel({
+class InOutDuration {
+  InOutDuration({
     required this.inTime,
     this.outTime,
     this.durationInMinutes,

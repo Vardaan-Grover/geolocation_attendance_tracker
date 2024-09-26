@@ -1,5 +1,5 @@
-class BranchModel {
-  const BranchModel(
+class Branch {
+  const Branch(
       {required this.name,
       required this.latitude,
       required this.longitude,

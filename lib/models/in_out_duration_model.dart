@@ -15,4 +15,12 @@ class InOutDuration {
     outTime = value;
     durationInMinutes = outTime!.toDate().difference(inTime.toDate()).inMinutes;
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'in_time': inTime,
+      'out_time': outTime,
+      'duration_in_minutes': durationInMinutes,
+    };
+  }
 }

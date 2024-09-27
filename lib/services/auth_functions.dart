@@ -9,7 +9,7 @@ class AuthFunctions {
   /// - `password`: The password of the user.
   ///
   /// Returns:
-  /// - `success`: If the user was created successfully.
+  /// - `"success"`: If the user was created successfully.
   /// OR
   /// - error message: If the user creation failed.
   Future<String> signUpWithEmailAndPassword(
@@ -38,7 +38,7 @@ class AuthFunctions {
   /// - `password`: The password of the user.
   /// 
   /// Returns:
-  /// - `success`: If the user was signed in successfully.
+  /// - `"success"`: If the user was signed in successfully.
   /// 
   /// OR
   /// 

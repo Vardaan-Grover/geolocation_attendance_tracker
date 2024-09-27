@@ -44,7 +44,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [Text(widget.user.fullName)],
+        children: [
+          Text(widget.user.role),
+          Text(widget.user.fullName),
+        ],
       ),
     );
   }

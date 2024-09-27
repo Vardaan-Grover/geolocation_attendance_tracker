@@ -1,34 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocation_attendance_tracker/providers/user_info_provider.dart';
 import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/home_screen.dart/admin_home_screen.dart';
 
-class CompanyScreen extends StatelessWidget {
+class CompanyScreen extends ConsumerWidget {
   const CompanyScreen({super.key});
 
   Future<void> _createCompany(
-      BuildContext context, String uid, String companyName) async {
+      BuildContext context, String companyName, WidgetRef ref) async {
     try {
-      // Create a new company document in Firestore
-      final companyId = await FirestoreFunctions.createCompany(name: companyName);
+      final userForm = ref.read(userProvider);
 
-      // Get current user
-      final currentUser =AuthFunctions.getCurrentUser();
+      await AuthFunctions.signUpWithEmailAndPassword(
+          email: userForm['email'], password: userForm['password']);
+
+      final currentUser = await AuthFunctions.getCurrentUser();
 
       if (currentUser != null) {
-        // Assign the current user as the Super Admin for the new company
+        final companyId = await FirestoreFunctions.createCompany(
+          name: companyName,
+        );
+        print('Company ID: $companyId');
+
+        // Assign the current user as Super Admin for the company
         await FirestoreFunctions.createUser(
           uid: currentUser.uid,
-          fullName: currentUser.displayName ?? "Super Admin",
-          role: "Super Admin",
+          fullName: userForm['fullName'],
+          role: "super-admin",
           associatedCompanyId: companyId,
         );
 
+        // Navigate to Admin Home Screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AdminHomeScreen()),
+          MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
         );
+      } else {
+        print('Error: currentUser is null');
       }
     } catch (e) {
       print('Error creating company: $e');
@@ -36,8 +47,10 @@ class CompanyScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    User? currentUser = FirebaseAuth.instance.currentUser;
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Get current user information from provider
+    final userForm = ref.watch(userProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -69,22 +82,12 @@ class CompanyScreen extends StatelessWidget {
                         actions: [
                           TextButton(
                             onPressed: () async {
-                              // Close the dialog first
                               Navigator.of(context).pop();
 
-                              if (currentUser != null) {
-                                // Call the function to create a company
-                                await _createCompany(
-                                    context, currentUser.uid, companyName);
-
-                                // Navigate to the AdminHomeScreen
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const AdminHomeScreen(),
-                                  ),
-                                );
+                              if (userForm['email'] != null &&
+                                  userForm['password'] != null) {
+                                // Use provider to read the current user details
+                                await _createCompany(context, companyName, ref);
                               }
                             },
                             child: const Text("Submit"),
@@ -129,17 +132,10 @@ class CompanyScreen extends StatelessWidget {
                         actions: [
                           TextButton(
                             onPressed: () async {
-                              // Close the dialog first
                               Navigator.of(context).pop();
 
-                              // Navigate to the AdminHomeScreen
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AdminHomeScreen(),
-                                ),
-                              );
+                              // Handle joining a company
+                              // You can implement this functionality accordingly
                             },
                             child: const Text("Submit"),
                           ),

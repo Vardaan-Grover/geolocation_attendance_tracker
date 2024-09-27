@@ -1,6 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/admin_home_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,7 +17,34 @@ class _LoginPageState extends State<LoginPage> {
 
   String? email;
   String? password;
-  String? role; // 'admin', 'employee', 'superAdmin'
+  String? role;
+
+  void onLogin() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      final result = await AuthFunctions.signInWithEmailAndPassword(
+        email: email!,
+        password: password!,
+      );
+      final authUser = AuthFunctions.getCurrentUser();
+      if (result == "success" && authUser != null) {
+        final fetchedUser = await FirestoreFunctions.fetchUser(authUser.uid);
+        if (fetchedUser != null) {
+          final userRole = fetchedUser.role;
+          if (userRole == "admin" || userRole == "super-admin") {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => AdminHomeScreen(fetchedUser),
+              ),
+            );
+          } else {
+            //! Code to direct to Employee Home Screen
+          }
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,31 +56,6 @@ class _LoginPageState extends State<LoginPage> {
           key: _formKey,
           child: Column(
             children: [
-              // DropdownButtonFormField<String>(
-              //   decoration: const InputDecoration(labelText: 'Role'),
-              //   value: role,
-              //   items: const [
-              //     DropdownMenuItem(
-              //       value: 'admin',
-              //       child: Text('Employer as Admin'),
-              //     ),
-              //     DropdownMenuItem(
-              //       value: 'employee',
-              //       child: Text('Employee'),
-              //     ),
-              //     DropdownMenuItem(
-              //       value: 'superAdmin',
-              //       child: Text('Super Admin'),
-              //     ),
-              //   ],
-              //   onChanged: (value) {
-              //     setState(() {
-              //       role = value;
-              //     });
-              //   },
-              //   validator: (value) =>
-              //       value == null ? 'Please select your role' : null,
-              // ),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
@@ -79,13 +84,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    // Handle login logic here
-                    print('Role: $role, Email: $email');
-                  }
-                },
+                onPressed: onLogin,
                 child: const Text('Login'),
               ),
             ],

@@ -25,4 +25,14 @@ class Branch {
       'radius': radius,
     };
   }
+
+  factory Branch.fromFirestore(Map<String, dynamic> json) {
+    return Branch(
+      name: json['name'],
+      address: json['address'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+      radius: json['radius'],
+    );
+  }
 }

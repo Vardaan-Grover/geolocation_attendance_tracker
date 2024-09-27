@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/admin_home_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/login_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/onboarding_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/sign_in_screen.dart';
@@ -20,6 +21,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: SignUpPage());
+    return const MaterialApp(home: LoginPage());
   }
 }

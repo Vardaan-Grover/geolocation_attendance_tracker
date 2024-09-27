@@ -29,27 +29,25 @@ class _SignUpPageState extends State<SignUpPage> {
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Center(
-                child: ToggleButtons(
-                  borderRadius: BorderRadius.circular(10),
-                  constraints: BoxConstraints(
-                      minHeight: 40,
-                      minWidth: (MediaQuery.of(context).size.width - 36) / 2),
-                  children: [
-                    const Expanded(
-                        child: Text('Employer', textAlign: TextAlign.center)),
-                    const Expanded(
-                        child: Text('Employee', textAlign: TextAlign.center)),
-                  ],
-                  isSelected: [isEmployer, !isEmployer],
-                  onPressed: (index) {
-                    setState(() {
-                      isEmployer = index == 0;
-                    });
-                  },
-                ),
+              ToggleButtons(
+                isSelected: [isEmployer, !isEmployer],
+                onPressed: (index) {
+                  setState(() {
+                    isEmployer = index == 0;
+                  });
+                },
+                borderRadius: BorderRadius.circular(10),
+                constraints: BoxConstraints(
+                    minHeight: 40,
+                    minWidth: (MediaQuery.of(context).size.width - 36) / 2),
+                children: [
+                  const SizedBox(
+                      child: Text('Employer', textAlign: TextAlign.center)),
+                  const SizedBox(
+                      child: Text('Employee', textAlign: TextAlign.center)),
+                ],
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -105,27 +103,30 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ],
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    // Handle sign-up logic here
-                    if (isEmployer) {
-                      print('Employer signed up: $name, $email');
-                    } else {
-                      print('Employee signed up: $name, $email, $companyUid');
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      // Handle sign-up logic here
+                      if (isEmployer) {
+                        print('Employer signed up: $name, $email');
+                      } else {
+                        print('Employee signed up: $name, $email, $companyUid');
+                      }
+                
+                      // Navigate to the company screen after sign-up
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CompanyScreen(),
+                        ),
+                      );
                     }
-
-                    // Navigate to the company screen after sign-up
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CompanyScreen(),
-                      ),
-                    );
-                  }
-                },
-                child: Text('Sign Up'),
+                  },
+                  child: Text('Sign Up'),
+                ),
               ),
             ],
           ),

@@ -3,6 +3,7 @@ import 'package:geolocation_attendance_tracker/ui/screens/login_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/onboarding_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/sign_in_screen.dart';
 
+
 void main() {
   runApp(const MyApp());
 }
@@ -12,6 +13,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: SignUpPage());
+    return MaterialApp(
+        theme: ThemeData(
+            brightness: Brightness.light,
+            useMaterial3: true,
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF006BFF),
+              secondary: Color(0xFF476788),
+            )),
+        debugShowCheckedModeBanner: false,
+        home: const LoginPage());
   }
 }

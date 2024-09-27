@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home_screen.dart/admin_home_screen.dart';
 
 class CompanyScreen extends StatelessWidget {
   const CompanyScreen({super.key});
@@ -35,18 +36,27 @@ class CompanyScreen extends StatelessWidget {
                         actions: [
                           TextButton(
                             onPressed: () {
-                              // Handle the submit action for creating a company
-                              print("Company Name: $companyName");
+                              // First close the dialog
                               Navigator.of(context).pop();
+
+                              // Navigate to the AdminHomeScreen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AdminHomeScreen(),
+                                ),
+                              );
+
+                              print("Company Name: $companyName");
                             },
-                            child: Text("Submit"),
+                            child: const Text("Submit"),
                           ),
                         ],
                       );
                     },
                   );
                 },
-                child: Text("Create a Company"),
+                child: const Text("Create a Company"),
                 style: ElevatedButton.styleFrom(
                   minimumSize:
                       const Size(0, 60), // Full width button with height 60
@@ -57,12 +67,11 @@ class CompanyScreen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 20), // Spacing between buttons
+          const SizedBox(height: 20), // Spacing between buttons
           // Join a Company Button (Optional)
           Expanded(
             child: SizedBox(
               width: double.infinity, // Full width button
-
               child: ElevatedButton(
                 onPressed: () {
                   showDialog(
@@ -82,18 +91,27 @@ class CompanyScreen extends StatelessWidget {
                         actions: [
                           TextButton(
                             onPressed: () {
-                              // Handle the submit action for joining a company
-                              print("Company UID: $companyUID");
+                              // First close the dialog
                               Navigator.of(context).pop();
+
+                              // Navigate to the AdminHomeScreen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AdminHomeScreen(),
+                                ),
+                              );
+
+                              print("Company UID: $companyUID");
                             },
-                            child: Text("Submit"),
+                            child: const Text("Submit"),
                           ),
                         ],
                       );
                     },
                   );
                 },
-                child: Text("Join a Company"),
+                child: const Text("Join a Company"),
                 style: ElevatedButton.styleFrom(
                   minimumSize:
                       const Size(0, 60), // Full width button with height 60
@@ -104,9 +122,7 @@ class CompanyScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(
-            height: 20,
-          )
+          const SizedBox(height: 20),
         ],
       ),
     );

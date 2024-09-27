@@ -1,7 +1,7 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/admin_role_pathway.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home_screen.dart/user_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/login_screen.dart'; // Import the login page
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -22,6 +22,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up')),
       body: Padding(
@@ -37,11 +38,10 @@ class _SignUpPageState extends State<SignUpPage> {
                   constraints: BoxConstraints(
                       minHeight: 40,
                       minWidth: (MediaQuery.of(context).size.width - 36) / 2),
-                  children: [
-                    const Expanded(
-                        child: Text('Employer', textAlign: TextAlign.center)),
-                    const Expanded(
-                        child: Text('Employee', textAlign: TextAlign.center)),
+                  // ignore: sort_child_properties_last
+                  children: const [
+                    Text('Employer', textAlign: TextAlign.center),
+                    Text('Employee', textAlign: TextAlign.center),
                   ],
                   isSelected: [isEmployer, !isEmployer],
                   onPressed: (index) {
@@ -52,20 +52,24 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  name = value;
-                },
+              Column(
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Name'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      name = value;
+                    },
+                  ),
+                ],
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -78,7 +82,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -92,7 +96,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               if (!isEmployer) ...[
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Company UID'),
+                  decoration: const InputDecoration(labelText: 'Company UID'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter company UID';
@@ -104,7 +108,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                 ),
               ],
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -112,20 +116,51 @@ class _SignUpPageState extends State<SignUpPage> {
                     // Handle sign-up logic here
                     if (isEmployer) {
                       print('Employer signed up: $name, $email');
+                      // Navigate to the company screen for employer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CompanyScreen(),
+                        ),
+                      );
                     } else {
                       print('Employee signed up: $name, $email, $companyUid');
+                      // Navigate to the user homepage screen for employee
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const UserHomeScreen(),
+                        ),
+                      );
                     }
-
-                    // Navigate to the company screen after sign-up
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CompanyScreen(),
-                      ),
-                    );
                   }
                 },
-                child: Text('Sign Up'),
+                child: const Text('Sign Up'),
+              ),
+              const Spacer(), // Pushes the following Row to the bottom
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Company already Registered? "),
+                  GestureDetector(
+                    onTap: () {
+                      // Navigate to LoginPage when clicked
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      "Login",
+                      style: TextStyle(
+                        color: colorScheme.primary, // Use theme color for link
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

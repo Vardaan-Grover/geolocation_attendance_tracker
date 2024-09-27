@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/admin_role_pathway.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/home_screen.dart/user_home_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/login_screen.dart'; // Import the login page
@@ -96,10 +98,10 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               if (!isEmployer) ...[
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Company UID'),
+                  decoration: const InputDecoration(labelText: 'Employee UID'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter company UID';
+                      return 'Please enter Employee UID';
                     }
                     return null;
                   },

@@ -12,7 +12,7 @@ class AuthFunctions {
   /// - `"success"`: If the user was created successfully.
   /// OR
   /// - error message: If the user creation failed.
-  Future<String> signUpWithEmailAndPassword(
+  static Future<String> signUpWithEmailAndPassword(
       {required String email, required String password}) async {
     try {
       await FirebaseAuth.instance
@@ -43,7 +43,7 @@ class AuthFunctions {
   /// OR
   /// 
   /// - error message: If the sign in failed.
-  Future<String> signInWithEmailAndPassword(
+  static Future<String> signInWithEmailAndPassword(
       {required String email, required String password}) async {
     try {
       await FirebaseAuth.instance
@@ -65,7 +65,7 @@ class AuthFunctions {
   }
 
   /// Returns a `User` object if the user is logged in, otherwise returns `null`.
-  Future<User?> getCurrentUser() async {
+  static Future<User?> getCurrentUser() async {
     return FirebaseAuth.instance.currentUser;
   }
 }

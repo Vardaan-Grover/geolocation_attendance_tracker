@@ -46,11 +46,54 @@ class CompanyScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _joinCompany(
+      BuildContext context, String adminCode, WidgetRef ref) async {
+    try {
+      final userForm = ref.read(userProvider);
+
+      await AuthFunctions.signUpWithEmailAndPassword(
+          email: userForm['email'], password: userForm['password']);
+
+      final currentUser = await AuthFunctions.getCurrentUser();
+
+      if (currentUser != null) {
+        final result =
+            await FirestoreFunctions.findCompanyByAdminCode(adminCode);
+
+        if (result != null && !result.startsWith("Error")) {
+          final companyId = result;
+
+          final createUserResult = await FirestoreFunctions.createUser(
+            uid: currentUser.uid,
+            fullName: userForm['fullName'],
+            role: "admin",
+            associatedCompanyId: companyId,
+          );
+          print(createUserResult == 'success');
+
+          if (createUserResult == "success") {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+            );
+          } else {
+            print('Error creating user in Firestore: $createUserResult');
+          }
+        } else {
+          print('Error: $result'); // Handle the error if company not found
+        }
+      } else {
+        print('Error: currentUser is null');
+      }
+    } catch (e) {
+      print('Error joining company: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Get current user information from provider
     final userForm = ref.watch(userProvider);
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -109,7 +152,7 @@ class CompanyScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 20), // Spacing between buttons
-          // Join a Company Button (Optional)
+          // Join a Company Button
           Expanded(
             child: SizedBox(
               width: double.infinity, // Full width button
@@ -126,16 +169,18 @@ class CompanyScreen extends ConsumerWidget {
                           onChanged: (value) {
                             companyUID = value;
                           },
-                          decoration: const InputDecoration(
-                              hintText: "Enter Company UID"),
+                          decoration:
+                              const InputDecoration(hintText: "Enter Admin ID"),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () async {
                               Navigator.of(context).pop();
 
-                              // Handle joining a company
-                              // You can implement this functionality accordingly
+                              // Call the join company method
+                              if (companyUID.isNotEmpty) {
+                                await _joinCompany(context, companyUID, ref);
+                              }
                             },
                             child: const Text("Submit"),
                           ),

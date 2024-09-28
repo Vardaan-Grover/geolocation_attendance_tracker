@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocation_attendance_tracker/providers/user_info_provider.dart';
 
 import 'package:geolocation_attendance_tracker/ui/screens/admin_role_pathway.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/home_screen.dart/user_home_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/login_screen.dart';
 
 class SignUpPage extends ConsumerWidget {
@@ -34,6 +33,7 @@ class SignUpPage extends ConsumerWidget {
                     Text('Employer', textAlign: TextAlign.center),
                     Text('Employee', textAlign: TextAlign.center),
                   ],
+                  //! WRONG LOGIC. MAKE WIDGET STATEFUL AND USE OLD isEmployee VARIABLE TO HANDLE THIS
                   isSelected: [
                     userForm['companyName'] != null,
                     userForm['employeeCode'] != null,

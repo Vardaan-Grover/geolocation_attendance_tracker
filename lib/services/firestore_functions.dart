@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocation_attendance_tracker/models/branch_model.dart';
+import 'package:geolocation_attendance_tracker/models/company_model.dart';
 import 'package:geolocation_attendance_tracker/models/in_out_duration_model.dart';
+import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/services/helper_functions.dart';
 
 class FirestoreFunctions {
@@ -148,6 +150,54 @@ class FirestoreFunctions {
     }
   }
 
+  /// Fetches the user data using the user ID.
+  ///
+  /// Parameters:
+  /// - `uid`: The unique ID of the user.
+  ///
+  /// Returns:
+  /// - A `User` object if the user was found.
+  /// - `null`: If the user was not found.
+  static Future<User?> fetchUser(String uid) async {
+    try {
+      final docSnapshot = await usersCollection.doc(uid).get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        if (data.isNotEmpty) {
+          return User.fromFirestore(data);
+        }
+      }
+
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Fetches the company data using the company ID.
+  /// 
+  /// Parameters:
+  /// - `companyId`: The ID of the company.
+  /// 
+  /// Returns:
+  /// - A `Company` object if the company was found.
+  /// - `null`: If the company was not found.
+  static Future<Company?> fetchCompany(String companyId) async {
+    try {
+      final docSnapshot = await companiesCollection.doc(companyId).get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        if (data.isNotEmpty) {
+          return Company.fromFirestore(data);
+        }
+      }
+
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   /// Fetches the branches of a company using the company ID.
   ///
   /// Parameters:
@@ -278,12 +328,12 @@ class FirestoreFunctions {
   }
 
   /// Updates the tracking data for the user.
-  /// 
+  ///
   /// Parameters:
   /// - `uid`: The unique ID of the user for whom you want to update the tracking data.
   /// - `date`: The date for which you want to update the tracking data.
   /// - `obj`: The `InOutDuration` object you want to add to the tracking data.
-  /// 
+  ///
   /// Returns:
   /// - `"success"`: If the update is successful
   /// - `error message`: If some error occurred
@@ -310,7 +360,9 @@ class FirestoreFunctions {
             return 'success';
           } else {
             await usersCollection.doc(uid).update({
-              "tracking": {date: [obj]}
+              "tracking": {
+                date: [obj]
+              }
             });
             return 'success';
           }

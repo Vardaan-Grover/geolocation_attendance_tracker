@@ -65,7 +65,7 @@ class AuthFunctions {
   }
 
   /// Returns a `User` object if the user is logged in, otherwise returns `null`.
-  static Future<User?> getCurrentUser() async {
+  static User? getCurrentUser() {
     return FirebaseAuth.instance.currentUser;
   }
 }

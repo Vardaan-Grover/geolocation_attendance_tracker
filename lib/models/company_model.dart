@@ -12,4 +12,20 @@ class Company {
   final List<Branch> branches;
   final String employeeCode;
   final String adminCode;
+
+  factory Company.fromFirestore(Map<String, dynamic> json) {
+    final List<Branch> branches = [];
+    if (json['branches'] != null) {
+      json['branches'].forEach((branch) {
+        branches.add(Branch.fromFirestore(branch));
+      });
+    }
+
+    return Company(
+      name: json['name'],
+      branches: branches,
+      employeeCode: json['employee_code'],
+      adminCode: json['admin_code'],
+    );
+  }
 }

@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyClIYdTMn7lfItz4fHXeASszUXWz9MGzN0',
-    appId: '1:244079569882:android:88c60f311a957cda8aaee3',
+    appId: '1:244079569882:android:f1f8a9dc05b1c4b88aaee3',
     messagingSenderId: '244079569882',
     projectId: 'geolocation-attendance-tracker',
     storageBucket: 'geolocation-attendance-tracker.appspot.com',
@@ -63,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '244079569882',
     projectId: 'geolocation-attendance-tracker',
     storageBucket: 'geolocation-attendance-tracker.appspot.com',
+    iosClientId: '244079569882-3fkl519ihhfj9aejr805trfhsa82lq40.apps.googleusercontent.com',
     iosBundleId: 'com.example.geolocationAttendanceTracker',
   );
 

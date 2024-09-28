@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/sign_in_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -20,17 +21,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        brightness: Brightness.light,
-        useMaterial3: true,
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFF006BFF),
-          secondary: Color(0xFF476788),
-        ),
-      ),
-      debugShowCheckedModeBanner: false,
-      home: const LoginPage(),
-    );
+    return const MaterialApp(home: SignUpPage());
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/sign_up_screen.dart';
+import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/admin_home_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,94 +17,77 @@ class _LoginPageState extends State<LoginPage> {
 
   String? email;
   String? password;
-  String? role; // 'admin', 'employee', 'superAdmin'
+  String? role;
+
+  void onLogin() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      final result = await AuthFunctions.signInWithEmailAndPassword(
+        email: email!,
+        password: password!,
+      );
+      final authUser = AuthFunctions.getCurrentUser();
+      if (result == "success" && authUser != null) {
+        final fetchedUser = await FirestoreFunctions.fetchUser(authUser.uid);
+        if (fetchedUser != null) {
+          final userRole = fetchedUser.role;
+          if (userRole == "admin" || userRole == "super-admin") {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => AdminHomeScreen(fetchedUser),
+              ),
+            );
+          } else {
+            //! Code to direct to Employee Home Screen
+          }
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Center(child: Text('Login'))),
-      body: Center(
-        // Centering the content
-        child: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0), // Padding around the form
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min, // Adjusts height to fit content
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextFormField(
-                    controller: emailController,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      email = value;
-                    },
-                  ),
-                  TextFormField(
-                    controller: passwordController,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      password = value;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        // Handle login logic here
-                        print('Role: $role, Email: $email');
-                      }
-                    },
-                    child: const Text('Login'),
-                  ),
-                  const SizedBox(height: 20), // Space between button and text
-                  // "Company Not Registered?" with Sign Up link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Company Not Registered? "),
-                      const SizedBox(width: 5),
-                      GestureDetector(
-                        onTap: () {
-                          // Navigate to SignUpPage when clicked using pushReplacement
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SignUpScreen(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          "Sign Up",
-                          style: TextStyle(
-                            color: colorScheme
-                                .primary, // Using color scheme from theme
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+      appBar: AppBar(title: Center(child: const Text('Login'))),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  email = value;
+                },
               ),
-            ),
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  password = value;
+                },
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: onLogin,
+                child: const Text('Login'),
+              ),
+            ],
           ),
         ),
       ),

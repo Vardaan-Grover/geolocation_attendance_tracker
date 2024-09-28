@@ -1,132 +1,117 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/admin_role_pathway.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocation_attendance_tracker/providers/user_info_provider.dart';
 
-class SignUpPage extends StatefulWidget {
+import 'package:geolocation_attendance_tracker/ui/screens/admin_role_pathway.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/login_screen.dart';
+
+class SignUpPage extends ConsumerWidget {
   const SignUpPage({super.key});
 
   @override
-  _SignUpPageState createState() => _SignUpPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
 
-class _SignUpPageState extends State<SignUpPage> {
-  final _formKey = GlobalKey<FormState>();
+    // Use provider to access and update form values
+    final userForm = ref.watch(userProvider);
 
-  bool isEmployer = true; // Toggle between Employee and Employer
-  String? name;
-  String? email;
-  String? password;
-  String? companyUid; // Only for employee
-  String? companyName; // Only for Super Admin
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ToggleButtons(
-                isSelected: [isEmployer, !isEmployer],
-                onPressed: (index) {
-                  setState(() {
-                    isEmployer = index == 0;
-                  });
-                },
-                borderRadius: BorderRadius.circular(10),
-                constraints: BoxConstraints(
-                    minHeight: 40,
-                    minWidth: (MediaQuery.of(context).size.width - 36) / 2),
-                children: [
-                  const SizedBox(
-                      child: Text('Employer', textAlign: TextAlign.center)),
-                  const SizedBox(
-                      child: Text('Employee', textAlign: TextAlign.center)),
-                ],
+              Center(
+                child: ToggleButtons(
+                  borderRadius: BorderRadius.circular(10),
+                  constraints: BoxConstraints(
+                      minHeight: 40,
+                      minWidth: (MediaQuery.of(context).size.width - 36) / 2),
+                  children: const [
+                    Text('Employer', textAlign: TextAlign.center),
+                    Text('Employee', textAlign: TextAlign.center),
+                  ],
+                  //! WRONG LOGIC. MAKE WIDGET STATEFUL AND USE OLD isEmployee VARIABLE TO HANDLE THIS
+                  isSelected: [
+                    userForm['companyName'] != null,
+                    userForm['employeeCode'] != null,
+                  ],
+                  onPressed: (index) {
+                    if (index == 0) {
+                      ref.read(userProvider.notifier).updateCompanyName('');
+                    } else {
+                      ref.read(userProvider.notifier).updateEmployeeCode('');
+                    }
+                  },
+                ),
               ),
               const SizedBox(height: 20),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  name = value;
+                onChanged: (value) {
+                  ref.read(userProvider.notifier).updateFullName(value);
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  email = value;
+                onChanged: (value) {
+                  ref.read(userProvider.notifier).updateEmail(value);
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  password = value;
+                onChanged: (value) {
+                  ref.read(userProvider.notifier).updatePassword(value);
                 },
               ),
-              if (!isEmployer) ...[
+              if (userForm['companyName'] == null) ...[
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Company UID'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter company UID';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    companyUid = value;
+                  decoration: const InputDecoration(labelText: 'Employee UID'),
+                  onChanged: (value) {
+                    ref.read(userProvider.notifier).updateEmployeeCode(value);
                   },
                 ),
               ],
-              SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      // Handle sign-up logic here
-                      if (isEmployer) {
-                        print('Employer signed up: $name, $email');
-                      } else {
-                        print('Employee signed up: $name, $email, $companyUid');
-                      }
-                
-                      // Navigate to the company screen after sign-up
-                      Navigator.push(
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  // Navigate to the user homepage screen for employee
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CompanyScreen(),
+                    ),
+                  );
+                },
+                child: const Text('Sign Up'),
+              ),
+              const Spacer(), // Pushes the following Row to the bottom
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Company already Registered? "),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CompanyScreen(),
+                          builder: (context) => const LoginPage(),
                         ),
                       );
-                    }
-                  },
-                  child: Text('Sign Up'),
-                ),
+                    },
+                    child: Text(
+                      "Login",
+                      style: TextStyle(
+                        color: colorScheme.primary, // Use theme color for link
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

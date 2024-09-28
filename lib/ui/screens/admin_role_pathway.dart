@@ -1,10 +1,100 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocation_attendance_tracker/providers/user_info_provider.dart';
+import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home_screen.dart/admin_home_screen.dart';
 
-class CompanyScreen extends StatelessWidget {
+class CompanyScreen extends ConsumerWidget {
   const CompanyScreen({super.key});
 
+  Future<void> _createCompany(
+      BuildContext context, String companyName, WidgetRef ref) async {
+    try {
+      final userForm = ref.read(userProvider);
+
+      await AuthFunctions.signUpWithEmailAndPassword(
+          email: userForm['email'], password: userForm['password']);
+
+      final currentUser = await AuthFunctions.getCurrentUser();
+
+      if (currentUser != null) {
+        final companyId = await FirestoreFunctions.createCompany(
+          name: companyName,
+        );
+        print('Company ID: $companyId');
+
+        // Assign the current user as Super Admin for the company
+        await FirestoreFunctions.createUser(
+          uid: currentUser.uid,
+          fullName: userForm['fullName'],
+          role: "super-admin",
+          associatedCompanyId: companyId,
+        );
+
+        // Navigate to Admin Home Screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+        );
+      } else {
+        print('Error: currentUser is null');
+      }
+    } catch (e) {
+      print('Error creating company: $e');
+    }
+  }
+
+  Future<void> _joinCompany(
+      BuildContext context, String adminCode, WidgetRef ref) async {
+    try {
+      final userForm = ref.read(userProvider);
+
+      await AuthFunctions.signUpWithEmailAndPassword(
+          email: userForm['email'], password: userForm['password']);
+
+      final currentUser = await AuthFunctions.getCurrentUser();
+
+      if (currentUser != null) {
+        final result =
+            await FirestoreFunctions.findCompanyByAdminCode(adminCode);
+
+        if (result != null && !result.startsWith("Error")) {
+          final companyId = result;
+
+          final createUserResult = await FirestoreFunctions.createUser(
+            uid: currentUser.uid,
+            fullName: userForm['fullName'],
+            role: "admin",
+            associatedCompanyId: companyId,
+          );
+          print(createUserResult == 'success');
+
+          if (createUserResult == "success") {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+            );
+          } else {
+            print('Error creating user in Firestore: $createUserResult');
+          }
+        } else {
+          print('Error: $result'); // Handle the error if company not found
+        }
+      } else {
+        print('Error: currentUser is null');
+      }
+    } catch (e) {
+      print('Error joining company: $e');
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Get current user information from provider
+    final userForm = ref.watch(userProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Company Options"),
@@ -34,19 +124,23 @@ class CompanyScreen extends StatelessWidget {
                         ),
                         actions: [
                           TextButton(
-                            onPressed: () {
-                              // Handle the submit action for creating a company
-                              print("Company Name: $companyName");
+                            onPressed: () async {
                               Navigator.of(context).pop();
+
+                              if (userForm['email'] != null &&
+                                  userForm['password'] != null) {
+                                // Use provider to read the current user details
+                                await _createCompany(context, companyName, ref);
+                              }
                             },
-                            child: Text("Submit"),
+                            child: const Text("Submit"),
                           ),
                         ],
                       );
                     },
                   );
                 },
-                child: Text("Create a Company"),
+                child: const Text("Create a Company"),
                 style: ElevatedButton.styleFrom(
                   minimumSize:
                       const Size(0, 60), // Full width button with height 60
@@ -57,12 +151,11 @@ class CompanyScreen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 20), // Spacing between buttons
-          // Join a Company Button (Optional)
+          const SizedBox(height: 20), // Spacing between buttons
+          // Join a Company Button
           Expanded(
             child: SizedBox(
               width: double.infinity, // Full width button
-
               child: ElevatedButton(
                 onPressed: () {
                   showDialog(
@@ -76,24 +169,27 @@ class CompanyScreen extends StatelessWidget {
                           onChanged: (value) {
                             companyUID = value;
                           },
-                          decoration: const InputDecoration(
-                              hintText: "Enter Company UID"),
+                          decoration:
+                              const InputDecoration(hintText: "Enter Admin ID"),
                         ),
                         actions: [
                           TextButton(
-                            onPressed: () {
-                              // Handle the submit action for joining a company
-                              print("Company UID: $companyUID");
+                            onPressed: () async {
                               Navigator.of(context).pop();
+
+                              // Call the join company method
+                              if (companyUID.isNotEmpty) {
+                                await _joinCompany(context, companyUID, ref);
+                              }
                             },
-                            child: Text("Submit"),
+                            child: const Text("Submit"),
                           ),
                         ],
                       );
                     },
                   );
                 },
-                child: Text("Join a Company"),
+                child: const Text("Join a Company"),
                 style: ElevatedButton.styleFrom(
                   minimumSize:
                       const Size(0, 60), // Full width button with height 60
@@ -104,9 +200,7 @@ class CompanyScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(
-            height: 20,
-          )
+          const SizedBox(height: 20),
         ],
       ),
     );

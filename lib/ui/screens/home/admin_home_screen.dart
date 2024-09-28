@@ -97,6 +97,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Gelocation Attendance Tracker'),
       ),
@@ -111,49 +112,55 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(largeSpacing),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            UserInfoHeader(
-              user: widget.user,
-              company: company!,
-            ),
-            const SizedBox(height: mediumSpacing),
-            const Divider(),
-            const SizedBox(height: mediumSpacing),
-            TitleButton(
-              title: 'View Branches',
-              icon: Icons.business,
-              onPressed: () {},
-            ),
-            const SizedBox(height: mediumSpacing),
-            TitleButton(
-              title: 'Add a branch / office',
-              icon: Icons.add_business,
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) => AddBranchPathwayModalSheet(),
-                );
-              },
-            ),
-            const SizedBox(height: mediumSpacing),
-            TitleButton(
-              title: 'Attendance Reports',
-              icon: Icons.table_chart_outlined,
-              onPressed: () {},
-            ),
-            const SizedBox(height: mediumSpacing),
-            TitleButton(
-              title: 'Employee List',
-              icon: Icons.list_alt,
-              onPressed: () {},
+      body: company == null
+          ? Center(
+              child: CircularProgressIndicator(),
             )
-          ],
-        ),
-      ),
+          : Padding(
+              padding: const EdgeInsets.all(largeSpacing),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  UserInfoHeader(
+                    user: widget.user,
+                    company: company!,
+                  ),
+                  const SizedBox(height: mediumSpacing),
+                  const Divider(),
+                  const SizedBox(height: mediumSpacing),
+                  TitleButton(
+                    title: 'View Branches',
+                    icon: Icons.business,
+                    onPressed: () {},
+                  ),
+                  const SizedBox(height: mediumSpacing),
+                  TitleButton(
+                    title: 'Add a branch / office',
+                    icon: Icons.add_business,
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) =>
+                            AddBranchPathwayModalSheet(widget.user),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: mediumSpacing),
+                  TitleButton(
+                    title: 'Attendance Reports',
+                    icon: Icons.table_chart_outlined,
+                    onPressed: () {},
+                  ),
+                  const SizedBox(height: mediumSpacing),
+                  TitleButton(
+                    title: 'Employee List',
+                    icon: Icons.list_alt,
+                    onPressed: () {},
+                  )
+                ],
+              ),
+            ),
     );
   }
 }

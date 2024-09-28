@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocation_attendance_tracker/providers/user_info_provider.dart';
 import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/admin_role_pathway.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/home_screen.dart/user_home_screen.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/login_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/auth/admin_role_pathway.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home/user_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/auth/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -23,7 +23,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final userForm = ref.watch(userProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up')),

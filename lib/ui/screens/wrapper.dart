@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/onboarding_screen.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/sign_up_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/auth/sign_up_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Wrapper extends StatefulWidget {

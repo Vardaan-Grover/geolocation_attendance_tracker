@@ -1,8 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/constants.dart';
+import 'package:geolocation_attendance_tracker/models/user_model.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/branch/pin_on_map_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/widgets/home/branch_raw_coordinates_modal_sheet.dart';
 
 class AddBranchPathwayModalSheet extends StatelessWidget {
-  const AddBranchPathwayModalSheet({super.key});
+  final User user;
+
+  const AddBranchPathwayModalSheet(this.user, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,19 +21,24 @@ class AddBranchPathwayModalSheet extends StatelessWidget {
           PathwayButton(
             title: 'By Map',
             icon: Icons.map,
-            onPressed: () {},
-          ),
-          SizedBox(width: mediumSpacing),
-          PathwayButton(
-            title: 'By Current Location',
-            icon: Icons.my_location,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PinOnMapScreen(user),
+                ),
+              );
+            },
           ),
           SizedBox(width: mediumSpacing),
           PathwayButton(
             title: 'By Raw Input',
             icon: Icons.location_on_outlined,
-            onPressed: () {},
+            onPressed: () {
+              showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (context) => BranchRawCoordinatesModalSheet(user));
+            },
           ),
         ],
       ),

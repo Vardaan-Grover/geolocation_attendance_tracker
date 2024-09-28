@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocation_attendance_tracker/providers/user_info_provider.dart';
 import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/home_screen/admin_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home/admin_home_screen.dart';
 
 class CompanyScreen extends ConsumerWidget {
   const CompanyScreen({super.key});

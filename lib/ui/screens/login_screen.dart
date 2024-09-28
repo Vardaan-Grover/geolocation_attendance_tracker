@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/admin_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home_screen.dart/admin_home_screen.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -39,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           } else {
-            //! Code to direct to Employee Home Screen
+            
           }
         }
       }

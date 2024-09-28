@@ -21,7 +21,7 @@ class User {
       role: data['role'] as String,
       associatedCompanyId: data['associated_company_id'] as String,
       selectedBranchCoordinates: data['selected_branch_coordinates'] != null
-          ? List<double>.from(data['selectedBranchCoordinates'] as List<dynamic>)
+          ? List<double>.from(data['selected_branch_coordinates'] as List<dynamic>)
           : null,
       tracking: data['tracking'] != null
           ? Map<String, List<InOutDuration>>.from(data['tracking'] as Map)

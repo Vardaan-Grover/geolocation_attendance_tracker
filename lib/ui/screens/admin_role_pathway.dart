@@ -17,27 +17,33 @@ class CompanyScreen extends ConsumerWidget {
       await AuthFunctions.signUpWithEmailAndPassword(
           email: userForm['email'], password: userForm['password']);
 
-      final currentUser = await AuthFunctions.getCurrentUser();
+      final authUser = await AuthFunctions.getCurrentUser();
 
-      if (currentUser != null) {
+      if (authUser != null) {
         final companyId = await FirestoreFunctions.createCompany(
           name: companyName,
         );
         print('Company ID: $companyId');
 
         // Assign the current user as Super Admin for the company
-        await FirestoreFunctions.createUser(
-          uid: currentUser.uid,
+        final createUserResult = await FirestoreFunctions.createUser(
+          uid: authUser.uid,
           fullName: userForm['fullName'],
           role: "super-admin",
           associatedCompanyId: companyId,
         );
 
-        // Navigate to Admin Home Screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
-        );
+        if (createUserResult == 'success') {
+          final user = await FirestoreFunctions.fetchUser(authUser.uid);
+          if (user != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AdminHomeScreen(user),
+              ),
+            );
+          }
+        }
       } else {
         print('Error: currentUser is null');
       }
@@ -54,9 +60,9 @@ class CompanyScreen extends ConsumerWidget {
       await AuthFunctions.signUpWithEmailAndPassword(
           email: userForm['email'], password: userForm['password']);
 
-      final currentUser = await AuthFunctions.getCurrentUser();
+      final authUser = await AuthFunctions.getCurrentUser();
 
-      if (currentUser != null) {
+      if (authUser != null) {
         final result =
             await FirestoreFunctions.findCompanyByAdminCode(adminCode);
 
@@ -64,7 +70,7 @@ class CompanyScreen extends ConsumerWidget {
           final companyId = result;
 
           final createUserResult = await FirestoreFunctions.createUser(
-            uid: currentUser.uid,
+            uid: authUser.uid,
             fullName: userForm['fullName'],
             role: "admin",
             associatedCompanyId: companyId,
@@ -72,10 +78,15 @@ class CompanyScreen extends ConsumerWidget {
           print(createUserResult == 'success');
 
           if (createUserResult == "success") {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
-            );
+            final user = await FirestoreFunctions.fetchUser(authUser.uid);
+            if (user != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdminHomeScreen(user),
+                ),
+              );
+            }
           } else {
             print('Error creating user in Firestore: $createUserResult');
           }

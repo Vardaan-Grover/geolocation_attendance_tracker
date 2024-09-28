@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/onboarding_screen.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/sign_in_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/sign_up_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Wrapper extends StatefulWidget {
@@ -36,6 +36,6 @@ class _WrapperState extends State<Wrapper> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return hasSeenOnboarding! ? const SignUpPage() : const OnboardingScreen();
+    return hasSeenOnboarding! ? const SignUpScreen() : const OnboardingScreen();
   }
 }

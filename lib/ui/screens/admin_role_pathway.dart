@@ -112,38 +112,70 @@ class CompanyScreen extends ConsumerWidget {
                     context: context,
                     builder: (BuildContext context) {
                       String companyName = '';
+                      String errorMessage = '';
 
-                      return AlertDialog(
-                        title: const Text("Create a Company"),
-                        content: TextField(
-                          onChanged: (value) {
-                            companyName = value;
-                          },
-                          decoration: const InputDecoration(
-                              hintText: "Enter Company Name"),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () async {
-                              Navigator.of(context).pop();
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return AlertDialog(
+                            title: const Text("Create a Company"),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  onChanged: (value) {
+                                    setState(() {
+                                      companyName = value;
 
-                              if (userForm['email'] != null &&
-                                  userForm['password'] != null) {
-                                // Use provider to read the current user details
-                                await _createCompany(context, companyName, ref);
-                              }
-                            },
-                            child: const Text("Submit"),
-                          ),
-                        ],
+                                      // Validation to check if periods ('.') are used
+                                      if (companyName.contains('.')) {
+                                        errorMessage =
+                                            "No periods allowed. Use 'private limited' instead of 'pvt. ltd.'";
+                                      } else {
+                                        errorMessage = '';
+                                      }
+                                    });
+                                  },
+                                  decoration: const InputDecoration(
+                                      hintText: "Enter Company Name"),
+                                ),
+                                if (errorMessage.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      errorMessage,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () async {
+                                  if (companyName.isNotEmpty &&
+                                      errorMessage.isEmpty) {
+                                    Navigator.of(context).pop();
+
+                                    if (userForm['email'] != null &&
+                                        userForm['password'] != null) {
+                                      await _createCompany(
+                                          context, companyName, ref);
+                                    }
+                                  }
+                                },
+                                child: const Text("Submit"),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
                   );
                 },
                 child: const Text("Create a Company"),
                 style: ElevatedButton.styleFrom(
-                  minimumSize:
-                      const Size(0, 60), // Full width button with height 60
+                  minimumSize: const Size(0, 60),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10), // Rounded corners
                   ),

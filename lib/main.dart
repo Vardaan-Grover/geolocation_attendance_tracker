@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/sign_in_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/sign_up_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -20,6 +20,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: SignUpPage());
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SignUpScreen());
   }
 }

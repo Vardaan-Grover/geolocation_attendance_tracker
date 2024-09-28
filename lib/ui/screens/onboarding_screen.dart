@@ -1,7 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/sign_in_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/sign_up_screen.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -80,7 +80,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 await prefs.setBool('hasSeenOnboarding', true);
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => SignUpPage()),);
+                  MaterialPageRoute(builder: (context) => SignUpScreen()),);
                 } else {
                   _pageController.nextPage(
                     duration: const Duration(milliseconds: 300),

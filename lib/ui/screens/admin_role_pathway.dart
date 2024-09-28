@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocation_attendance_tracker/providers/user_info_provider.dart';
 import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/home_screen.dart/admin_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home_screen/admin_home_screen.dart';
 
 class CompanyScreen extends ConsumerWidget {
   const CompanyScreen({super.key});
@@ -26,18 +25,22 @@ class CompanyScreen extends ConsumerWidget {
         print('Company ID: $companyId');
 
         // Assign the current user as Super Admin for the company
-        await FirestoreFunctions.createUser(
+        final result = await FirestoreFunctions.createUser(
           uid: currentUser.uid,
           fullName: userForm['fullName'],
           role: "super-admin",
           associatedCompanyId: companyId,
         );
 
-        // Navigate to Admin Home Screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
-        );
+        if (result == "success") {
+          final fetchedUser =
+              await FirestoreFunctions.fetchUser(currentUser.uid);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AdminHomeScreen(fetchedUser!)),
+          );
+        }
       } else {
         print('Error: currentUser is null');
       }
@@ -69,12 +72,14 @@ class CompanyScreen extends ConsumerWidget {
             role: "admin",
             associatedCompanyId: companyId,
           );
-          print(createUserResult == 'success');
 
           if (createUserResult == "success") {
+            final fetchedUser =
+                await FirestoreFunctions.fetchUser(currentUser.uid);
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+              MaterialPageRoute(
+                  builder: (context) => AdminHomeScreen(fetchedUser!)),
             );
           } else {
             print('Error creating user in Firestore: $createUserResult');

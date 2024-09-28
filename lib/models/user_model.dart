@@ -15,17 +15,29 @@ class User {
   List<double>? selectedBranchCoordinates;
   Map<String, List<InOutDuration>>? tracking;
 
+  Map<String, dynamic> toMap() {
+    return {
+      'full_name': fullName,
+      'role': role,
+      'associated_company_id': associatedCompanyId,
+      'selected_branch_coordinates': selectedBranchCoordinates,
+      'tracking': tracking,
+    };
+  }
+
   factory User.fromFirestore(Map<String, dynamic> data) {
-    return User(
+    final userMade = User(
       fullName: data['full_name'] as String,
       role: data['role'] as String,
       associatedCompanyId: data['associated_company_id'] as String,
       selectedBranchCoordinates: data['selected_branch_coordinates'] != null
-          ? List<double>.from(data['selectedBranchCoordinates'] as List<dynamic>)
+          ? List<double>.from(
+              data['selected_branch_coordinates'] as List<dynamic>)
           : null,
       tracking: data['tracking'] != null
           ? Map<String, List<InOutDuration>>.from(data['tracking'] as Map)
           : null,
     );
+    return userMade;
   }
 }

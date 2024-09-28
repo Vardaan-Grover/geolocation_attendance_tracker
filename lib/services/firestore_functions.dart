@@ -175,10 +175,10 @@ class FirestoreFunctions {
   }
 
   /// Fetches the company data using the company ID.
-  /// 
+  ///
   /// Parameters:
   /// - `companyId`: The ID of the company.
-  /// 
+  ///
   /// Returns:
   /// - A `Company` object if the company was found.
   /// - `null`: If the company was not found.

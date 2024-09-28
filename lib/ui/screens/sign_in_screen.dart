@@ -21,7 +21,7 @@ class SignUpPage extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Center(
                 child: ToggleButtons(

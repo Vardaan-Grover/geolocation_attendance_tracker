@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
-import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 
 import 'package:geolocation_attendance_tracker/ui/screens/auth/sign_up_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/home/admin_home_screen.dart';

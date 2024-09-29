@@ -2,7 +2,13 @@ import Flutter
 import UIKit
 import GoogleMaps
 
-@main
+func registerPlugins(registry: FlutterPluginRegistry) -> () {
+    if (!registry.hasPlugin("BackgroundLocatorPlugin")) {
+        GeneratedPluginRegistrant.register(with: registry)
+    } 
+}
+
+@main // or @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,

@@ -3,7 +3,7 @@ import 'package:geolocation_attendance_tracker/models/branch_model.dart';
 import 'package:geolocation_attendance_tracker/models/company_model.dart';
 import 'package:geolocation_attendance_tracker/models/in_out_duration_model.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
-import 'package:geolocation_attendance_tracker/services/helper_functions.dart';
+import 'package:geolocation_attendance_tracker/services/misc/helper_functions.dart';
 
 class FirestoreFunctions {
   static final CollectionReference companiesCollection =

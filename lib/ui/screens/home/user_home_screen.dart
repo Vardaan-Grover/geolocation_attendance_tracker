@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/constants.dart';
 import 'package:geolocation_attendance_tracker/models/company_model.dart'; // Import your company model
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
-import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/title_button.dart';
 
 class UserHomeScreen extends StatefulWidget {

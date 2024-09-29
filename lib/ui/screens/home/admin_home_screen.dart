@@ -5,8 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:geolocation_attendance_tracker/constants.dart';
 import 'package:geolocation_attendance_tracker/models/company_model.dart';
-import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
-import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/branch/view_branches_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/add_branch_pathway_modal_sheet.dart';

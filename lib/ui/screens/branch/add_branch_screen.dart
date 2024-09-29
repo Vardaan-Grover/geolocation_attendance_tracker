@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/constants.dart';
 import 'package:geolocation_attendance_tracker/models/branch_model.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
-import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AddBranchScreen extends StatefulWidget {

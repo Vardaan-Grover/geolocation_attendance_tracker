@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
 
-import 'package:geolocation_attendance_tracker/ui/screens/sign_in_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/home_screen/admin_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home_screen/user_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/sign_up_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,8 +43,14 @@ class _LoginPageState extends State<LoginPage> {
                 builder: (context) => AdminHomeScreen(fetchedUser),
               ),
             );
+          } else if (userRole == "employee") {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => UserHomeScreen(fetchedUser),
+              ),
+            );
           } else {
-            
+            print('Unknown role');
           }
         } else {
           print('User not found');
@@ -108,7 +115,7 @@ class _LoginPageState extends State<LoginPage> {
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => const SignUpPage()));
+                          builder: (context) => const SignUpScreen()));
                     },
                     child: const Text('Sign Up'),
                   ),

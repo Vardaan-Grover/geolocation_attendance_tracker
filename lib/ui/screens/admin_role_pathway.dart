@@ -73,6 +73,7 @@ class CompanyScreen extends ConsumerWidget {
             fullName: userForm['fullName'],
             role: "admin",
             associatedCompanyId: companyId,
+            
           );
 
           if (createUserResult == "success") {

@@ -6,7 +6,7 @@ import 'package:geolocation_attendance_tracker/models/branch_model.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/manual_check_in_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/title_button.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Add this import
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserHomeScreen extends StatefulWidget {
   final User user;
@@ -29,25 +29,19 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     super.initState();
 
     // Load branches and check saved branch when widget is initialized
-    print("Initializing UserHomeScreen");
     _loadBranches();
   }
 
   Future<void> _loadBranches() async {
     try {
-      print(
-          "Fetching branches for company ID: ${widget.user.associatedCompanyId}");
-
       // Fetch branches from Firestore
       final fetchedBranches = await FirestoreFunctions.fetchBranches(
           widget.user.associatedCompanyId);
-      print("Fetched branches: $fetchedBranches");
 
       // Fetch saved branch from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? savedBranch =
           prefs.getString('selectedBranch'); // Retrieve the saved branch
-      print("Saved branch in SharedPreferences: $savedBranch");
 
       setState(() {
         branches = fetchedBranches;
@@ -56,8 +50,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           // If saved branch exists, select it automatically
           selectedBranch = savedBranch;
           branchSelected = true;
-          print(
-              "Selected branch loaded from SharedPreferences: $selectedBranch");
         } else if (widget.user.selectedBranchCoordinates != null) {
           final userCoordinates = widget.user.selectedBranchCoordinates!;
 
@@ -76,27 +68,21 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           if (matchingBranch.name != "Unknown") {
             selectedBranch = matchingBranch.name;
             branchSelected = true;
-            print(
-                "Matching branch found based on user coordinates: $selectedBranch");
           } else {
             selectedBranch = null;
             branchSelected = false;
-            print("No matching branch found based on user coordinates.");
           }
         } else {
           selectedBranch = null;
-          branchSelected = false;
-          print("No branch coordinates available for user.");
+          branchSelected = false;  // Ensures "None" is displayed if no branch is selected
         }
 
         isLoadingBranches = false;
-        print("Branch loading completed.");
       });
     } catch (e) {
       setState(() {
         isLoadingBranches = false;
       });
-      print("Error fetching branches: $e");
     }
   }
 
@@ -104,7 +90,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     // Save the selected branch to SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedBranch', branchName);
-    print("Saved selected branch: $branchName to SharedPreferences");
   }
 
   // Method to show bottom sheet for selecting branch
@@ -130,14 +115,11 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                       setState(() {
                         selectedBranch =
                             branch.name; // Update the selected branch
-                        branchSelected =
-                            true; // Lock the dropdown after selection
+                        branchSelected = true; // Lock the dropdown after selection
                       });
                       _saveSelectedBranch(
                           branch.name); // Save the selected branch
                       Navigator.pop(context); // Close the bottom sheet
-                      print(
-                          "Selected branch from bottom sheet: $selectedBranch");
                     },
                   );
                 }).toList()
@@ -197,35 +179,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             const SizedBox(height: mediumSpacing),
             if (isLoadingBranches)
               const CircularProgressIndicator()
-            else if (branches.isEmpty)
-              const Text("No branches available")
             else
-              SizedBox(
-                width: double.infinity,
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  value: branchSelected ? selectedBranch : null,
-                  hint: const Text("Select Branch Name"),
-                  items: branches.map((branch) {
-                    return DropdownMenuItem<String>(
-                      value: branch.name,
-                      child: Text(branch.name),
-                    );
-                  }).toList(),
-                  onChanged: branchSelected
-                      ? null // Disable if branch is selected
-                      : (newValue) {
-                          setState(() {
-                            selectedBranch = newValue;
-                            branchSelected =
-                                true; // Disable the dropdown after selection
-                          });
-                          _saveSelectedBranch(
-                              newValue!); // Save selected branch
-                          print(
-                              "Branch selected via dropdown: $selectedBranch");
-                        },
-                ),
+              Text(
+                branchSelected && selectedBranch != null
+                    ? selectedBranch!
+                    : "None", // Show selected branch or "None" if no branch selected
+                style: const TextStyle(fontSize: 18),
               ),
             const SizedBox(height: largeSpacing),
             Row(

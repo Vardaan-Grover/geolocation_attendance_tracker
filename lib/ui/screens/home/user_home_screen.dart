@@ -5,8 +5,11 @@ import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/models/branch_model.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/manual_check_in_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/widgets/home/user_info_header.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/title_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/auth/sign_up_screen.dart'; // Add this import for sign-out
+ // Import the user info header widget
 
 class UserHomeScreen extends StatefulWidget {
   final User user;
@@ -149,6 +152,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Add the UserInfoHeader widget here
             FutureBuilder<Company?>(
               future: FirestoreFunctions.fetchCompany(
                   widget.user.associatedCompanyId),
@@ -158,16 +162,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 } else if (snapshot.hasError) {
                   return const Text('Error fetching company name');
                 } else if (snapshot.hasData) {
-                  final company = snapshot.data;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Company Name',
-                          style: TextStyle(fontSize: 18)),
-                      Text(company?.name ?? 'Unknown',
-                          style: const TextStyle(fontSize: 18)),
-                    ],
-                  );
+                  final company = snapshot.data!;
+                  return UserInfoHeader(company: company, user: widget.user);
                 } else {
                   return const Text('No company data available');
                 }

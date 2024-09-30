@@ -21,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   String? password;
   String? role;
   bool isLoading = false; // Loading indicator state
-  String? errorMessage; // Error message state
 
   void onLogin() async {
     if (_formKey.currentState!.validate()) {
@@ -29,7 +28,6 @@ class _LoginPageState extends State<LoginPage> {
 
       setState(() {
         isLoading = true; // Start showing loading indicator
-        errorMessage = null; // Clear any previous errors
       });
 
       final result = await AuthFunctions.signInWithEmailAndPassword(
@@ -55,25 +53,30 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           } else {
-            setState(() {
-              errorMessage = 'Unknown role assigned to the user.';
-            });
+            showErrorSnackBar('Unknown role assigned to the user.');
           }
         } else {
-          setState(() {
-            errorMessage = 'User not found in the database.';
-          });
+          showErrorSnackBar('User not found in the database.');
         }
       } else {
-        setState(() {
-          errorMessage = 'Login failed. Please check your email and password.';
-        });
+        showErrorSnackBar('Login failed. Please check your email and password.');
       }
 
       setState(() {
         isLoading = false; // Stop loading indicator
       });
     }
+  }
+
+  void showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating, // Optional for floating behavior
+        duration: const Duration(seconds: 3), // Adjust the duration if needed
+      ),
+    );
   }
 
   @override
@@ -112,12 +115,6 @@ class _LoginPageState extends State<LoginPage> {
                   password = value;
                 },
               ),
-              const SizedBox(height: 20),
-              if (errorMessage != null) // Show error message if present
-                Text(
-                  errorMessage!,
-                  style: const TextStyle(color: Colors.red),
-                ),
               const SizedBox(height: 20),
               isLoading // Show CircularProgressIndicator if loading
                   ? const CircularProgressIndicator()

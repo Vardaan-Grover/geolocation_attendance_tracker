@@ -276,12 +276,12 @@ class FirestoreFunctions {
   /// Adds a new offsite location to the company.
   ///
   /// Parameters:
-  /// - companyId: The ID of the company in which you want to add this branch
-  /// - offsite: The Offsite object you want to add.
+  /// - `companyId`: The ID of the company in which you want to add this branch
+  /// - `offsite`: The `Offsite` object you want to add.
   ///
   /// Returns:
-  /// - "success": If branch added successfully
-  /// - error message: If some error occurred
+  /// - `"success"`: If branch added successfully
+  /// - `error message`: If some error occurred
   static Future<String> addOffsite({
     required String companyId,
     required Offsite offsite,

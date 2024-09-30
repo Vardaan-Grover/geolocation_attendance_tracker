@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class InOutDuration {
   InOutDuration({
     required this.inTime,
+    required this.placeName,
+    required this.placeAddress,
     this.outTime,
     this.durationInMinutes,
   });
@@ -10,6 +12,8 @@ class InOutDuration {
   final Timestamp inTime;
   Timestamp? outTime;
   int? durationInMinutes;
+  String placeName;
+  String placeAddress;
 
   void updateOutTimeAndMilliseconds(Timestamp value) {
     outTime = value;

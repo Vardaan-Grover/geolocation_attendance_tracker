@@ -1,4 +1,5 @@
 import 'package:geolocation_attendance_tracker/models/branch_model.dart';
+import 'package:geolocation_attendance_tracker/models/offsite_model.dart';
 
 class Company {
   const Company({
@@ -6,10 +7,12 @@ class Company {
     required this.branches,
     required this.employeeCode,
     required this.adminCode,
+    required this.offsites,
   });
 
   final String name;
   final List<Branch> branches;
+  final List<Offsite> offsites;
   final String employeeCode;
   final String adminCode;
 
@@ -21,11 +24,19 @@ class Company {
       });
     }
 
+    final List<Offsite> offsites = [];
+    if (json['offsites'] != null) {
+      json['offsites'].forEach((offsite) {
+        offsites.add(Offsite.fromFirestore(offsite));
+      });
+    }
+
     return Company(
       name: json['name'],
       branches: branches,
       employeeCode: json['employee_code'],
       adminCode: json['admin_code'],
+      offsites: offsites,
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:geolocation_attendance_tracker/services/firebase/firestore_funct
 import 'package:geolocation_attendance_tracker/ui/screens/manual_check_in_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/user_info_header.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/title_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserHomeScreen extends StatefulWidget {
   final User user;
@@ -20,7 +21,9 @@ class UserHomeScreen extends StatefulWidget {
 }
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
+  static const IS_LOCATION_TRACKING_ACTIVE = "isLocationTrackingActive";
   final authUser = AuthFunctions.getCurrentUser();
+  bool? isLocationTrackingActive;
   Stream<DocumentSnapshot<Map<String, dynamic>>>? _companyStream;
   List<double>? selectedBranchCoordinates;
 
@@ -36,6 +39,14 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     }
   }
 
+  void getInitialIsLocationTrackingActive() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final fetchedValue = prefs.getBool(IS_LOCATION_TRACKING_ACTIVE);
+    setState(() {
+      isLocationTrackingActive = fetchedValue;
+    });
+  }
+
   void getSelectedBranchCoordinatesForUser() {
     final branchCoordinates = widget.user.selectedBranchCoordinates;
     setState(() {
@@ -48,24 +59,133 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     super.initState();
     startCompanyStream();
     getSelectedBranchCoordinatesForUser();
+    getInitialIsLocationTrackingActive();
   }
 
-  String getBranchFromCoordinates(Company company) {
-    if (selectedBranchCoordinates == null ||
-        selectedBranchCoordinates!.isEmpty) {
-      return 'No branch selected';
-    }
-    try {
-      final Branch selectedBranch = company.branches.firstWhere(
-        (branch) =>
-            branch.latitude == selectedBranchCoordinates![0] &&
-            branch.longitude == selectedBranchCoordinates![1],
-      );
-      return selectedBranch.name;
-    } catch (e) {
-      print(e);
-    }
-    return 'Branch not found';
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Center(
+          child: Text(
+            "GeoLocation Attendance Tracker",
+            style: TextStyle(fontSize: 25),
+          ),
+        ),
+      ),
+      body: _companyStream == null
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : StreamBuilder(
+              stream: _companyStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: const Text('Something went wrong'));
+                } else if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final snapshotData = snapshot.data;
+                if (snapshotData != null) {
+                  final companyData = snapshotData.data();
+                  if (companyData != null && companyData.isNotEmpty) {
+                    final company = Company.fromFirestore(companyData);
+                    return Padding(
+                      padding: const EdgeInsets.all(largeSpacing),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          UserInfoHeader(company: company, user: widget.user),
+                          const SizedBox(height: mediumSpacing),
+                          const Divider(),
+                          const SizedBox(height: largeSpacing),
+                          const Text(
+                            "Location Tracking",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: mediumSpacing),
+                          Transform.scale(
+                            scale: 1.5,
+                            child: Switch(
+                              value: isLocationTrackingActive ?? false,
+                              activeColor: Colors.green,
+                              onChanged: (bool value) =>
+                                  setIsLocationTrackingActive(value),
+                            ),
+                          ),
+                          const SizedBox(height: largeSpacing),
+                          const Divider(),
+                          const SizedBox(height: largeSpacing),
+                          const Text(
+                            "Selected Branch Name",
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(height: mediumSpacing),
+                          Text(
+                            getBranchFromCoordinates(company),
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: largeSpacing),
+                          const Divider(),
+                          const SizedBox(height: largeSpacing),
+                          Column(
+                            children: [
+                              const Text('Working Time Record For Today',
+                                  style: TextStyle(fontSize: 20)),
+                              Text('6hr 43min',
+                                  style: const TextStyle(fontSize: 20)),
+                            ],
+                          ),
+                          const SizedBox(height: largeSpacing),
+                          const Divider(),
+                          const SizedBox(height: largeSpacing),
+                          TitleButton(
+                            icon: Icons.update,
+                            title: 'Change Branch',
+                            onPressed: () => _showBranchSelectionSheet(company),
+                          ),
+                          const SizedBox(height: largeSpacing),
+                          TitleButton(
+                            icon: Icons.person,
+                            title: 'Manual Check-In',
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ManualCheckInScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                }
+                return Center(child: const Text('Company not found'));
+              },
+            ),
+    );
+  }
+
+  void setIsLocationTrackingActive(bool value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLocationTrackingActive', value);
+    setState(() {
+      isLocationTrackingActive = value;
+    });
   }
 
   // Method to show bottom sheet for selecting branch
@@ -112,94 +232,21 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Center(
-          child: Text(
-            "GeoLocation Attendance Tracker",
-            style: TextStyle(fontSize: 25),
-          ),
-        ),
-      ),
-      body: _companyStream == null
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : StreamBuilder(
-              stream: _companyStream,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: const Text('Something went wrong'));
-                } else if (snapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final snapshotData = snapshot.data;
-                if (snapshotData != null) {
-                  final companyData = snapshotData.data();
-                  if (companyData != null && companyData.isNotEmpty) {
-                    final company = Company.fromFirestore(companyData);
-                    return Padding(
-                      padding: const EdgeInsets.all(largeSpacing),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          UserInfoHeader(company: company, user: widget.user),
-                          const SizedBox(height: largeSpacing),
-                          const Text(
-                            "Selected Branch Name",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: mediumSpacing),
-                          Text(
-                            getBranchFromCoordinates(company),
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          const SizedBox(height: largeSpacing),
-                          Column(
-                            children: [
-                              const Text('Working Time Record For Today',
-                                  style: TextStyle(fontSize: 20)),
-                              Text('6hr 43min',
-                                  style: const TextStyle(fontSize: 20)),
-                            ],
-                          ),
-                          const Divider(),
-                          const SizedBox(height: largeSpacing),
-                          TitleButton(
-                            icon: Icons.update,
-                            title: 'Change Branch',
-                            onPressed: () => _showBranchSelectionSheet(company),
-                          ),
-                          const SizedBox(height: largeSpacing),
-                          TitleButton(
-                            icon: Icons.person,
-                            title: 'Manual Check-In',
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ManualCheckInScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                }
-                return Center(child: const Text('Company not found'));
-              },
-            ),
-    );
+  String getBranchFromCoordinates(Company company) {
+    if (selectedBranchCoordinates == null ||
+        selectedBranchCoordinates!.isEmpty) {
+      return 'No branch selected';
+    }
+    try {
+      final Branch selectedBranch = company.branches.firstWhere(
+        (branch) =>
+            branch.latitude == selectedBranchCoordinates![0] &&
+            branch.longitude == selectedBranchCoordinates![1],
+      );
+      return selectedBranch.name;
+    } catch (e) {
+      print(e);
+    }
+    return 'Branch not found';
   }
 }

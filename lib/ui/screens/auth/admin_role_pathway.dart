@@ -4,6 +4,7 @@ import 'package:geolocation_attendance_tracker/providers/user_info_provider.dart
 import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/home/admin_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/wrapper.dart';
 
 class CompanyScreen extends ConsumerWidget {
   const CompanyScreen({super.key});
@@ -31,17 +32,14 @@ class CompanyScreen extends ConsumerWidget {
           role: "super-admin",
           associatedCompanyId: companyId,
         );
-
-        if (createUserResult == 'success') {
-          final user = await FirestoreFunctions.fetchUser(authUser.uid);
-          if (user != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AdminHomeScreen(user),
-              ),
-            );
-          }
+        final user = await FirestoreFunctions.fetchUser(authUser.uid);
+        if (user != null) {
+          print("FETCHED USER: ${user.toMap()}");
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => Wrapper(),
+            ),
+          );
         }
       } else {
         print('Error: currentUser is null');
@@ -73,7 +71,6 @@ class CompanyScreen extends ConsumerWidget {
             fullName: userForm['fullName'],
             role: "admin",
             associatedCompanyId: companyId,
-            
           );
 
           if (createUserResult == "success") {

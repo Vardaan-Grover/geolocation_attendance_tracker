@@ -184,7 +184,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           final companyId =
               await FirestoreFunctions.findCompanyIdByEmployeeCode(
                   employeeCode);
-
+          if (companyId == null) {
+            AuthFunctions.deleteUser();
+            showErrorSnackbar(
+                context, 'Invalid Employee UID. Please try again.');
+          }
           if (companyId != null) {
             final authUser = FirebaseAuth.instance.currentUser;
             if (authUser != null) {

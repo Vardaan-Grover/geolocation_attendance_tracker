@@ -64,6 +64,11 @@ class AuthFunctions {
     }
   }
 
+  /// This function signs out the current user.
+  static Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
   /// Returns a `User` object if the user is logged in, otherwise returns `null`.
   static User? getCurrentUser() {
     return FirebaseAuth.instance.currentUser;

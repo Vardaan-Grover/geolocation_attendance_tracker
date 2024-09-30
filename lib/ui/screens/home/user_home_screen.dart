@@ -3,7 +3,7 @@ import 'package:geolocation_attendance_tracker/constants.dart';
 import 'package:geolocation_attendance_tracker/models/company_model.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/models/branch_model.dart';
-import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/manual_check_in_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/title_button.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Add this import

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 
-import 'package:geolocation_attendance_tracker/ui/screens/home_screen/admin_home_screen.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/home_screen/user_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home/admin_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home/user_home_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/auth/sign_up_screen.dart';
 
 class LoginPage extends StatefulWidget {

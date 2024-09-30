@@ -18,7 +18,11 @@ class UserInfoHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const roleTitleMap = {'super-admin': 'Super Admin', 'admin': 'Admin'};
+    const roleTitleMap = {
+      'super-admin': 'Super Admin',
+      'admin': 'Admin',
+      'employee': 'Employee'
+    };
 
     final colorScheme = Theme.of(context).colorScheme;
     // final textTheme = Theme.of(context).textTheme;

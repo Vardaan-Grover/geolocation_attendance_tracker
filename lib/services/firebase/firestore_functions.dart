@@ -397,4 +397,36 @@ class FirestoreFunctions {
       return [];
     }
   }
+
+  /// This function updates the information of the given branch
+  static Future<String> updateBranch({
+    required String companyId,
+    required Branch oldBranch,
+    required Branch newBranch,
+  }) async {
+    try {
+      final docSnapshot = await companiesCollection.doc(companyId).get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        if (data.isNotEmpty) {
+          final branches = data['branches'] as List<dynamic>;
+          final index = branches.indexWhere((branch) =>
+              branch['latitude'] == oldBranch.latitude &&
+              branch['longitude'] == oldBranch.longitude);
+
+          if (index != -1) {
+            branches[index] = newBranch.toMap();
+            await companiesCollection
+                .doc(companyId)
+                .update({"branches": branches});
+            return 'success';
+          }
+        }
+      }
+
+      return 'Some error occurred. Please try again later';
+    } catch (e) {
+      return e.toString();
+    }
+  }
 }

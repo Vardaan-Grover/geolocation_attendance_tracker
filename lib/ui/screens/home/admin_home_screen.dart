@@ -8,6 +8,7 @@ import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/branch/view_branches_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/employee_list_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/add_branch_pathway_modal_sheet.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/title_button.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/user_info_header.dart';
@@ -153,7 +154,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               onPressed: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      ViewBranchesScreen(company),
+                                      ViewBranchesScreen(company: company, user: widget.user,),
                                 ),
                               ),
                             ),
@@ -180,7 +181,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             TitleButton(
                               title: 'Employee List',
                               icon: Icons.list_alt,
-                              onPressed: () {},
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      EmployeesListScreen(widget.user)
+                                ),
+                              ),
                             )
                           ],
                         ),

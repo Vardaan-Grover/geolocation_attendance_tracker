@@ -377,4 +377,24 @@ class FirestoreFunctions {
       return e.toString();
     }
   }
+
+  static Future<List<User>> fetchEmployeesForCompany(String companyId) async {
+    try {
+      final querySnapshot = await usersCollection
+          .where('associated_company_id', isEqualTo: companyId)
+          .where('role', isEqualTo: 'employee')
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return User.fromFirestore(data);
+        }).toList();
+      }
+
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
 }

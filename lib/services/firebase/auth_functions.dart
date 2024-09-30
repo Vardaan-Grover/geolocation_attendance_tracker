@@ -64,6 +64,11 @@ class AuthFunctions {
     }
   }
 
+  /// This function deletes firebase user from Firebase Auth
+  static Future<void> deleteUser() async {
+    await FirebaseAuth.instance.currentUser?.delete();
+  }
+
   /// This function signs out the current user.
   static Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();

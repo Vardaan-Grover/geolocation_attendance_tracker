@@ -46,6 +46,11 @@ dependencies:
   google_maps_flutter: ^2.9.0
   permission_handler: ^11.3.1
   path_provider: ^2.1.4
+  geolocator: ^13.0.1
+  google_maps_flutter: ^2.9.0
+  flutter_swipe_action_cell: ^3.1.4
+  permission_handler: ^11.3.1
+  font_awesome_flutter: ^10.7.0
 
 dev_dependencies:
   flutter_test:

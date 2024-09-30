@@ -206,29 +206,32 @@ class FirestoreFunctions {
   /// Returns:
   /// - A list of `Branch` objects if the branches were found. Else, an empty list.
   static Future<List<Branch>> fetchBranches(String companyId) async {
-    try {
-      final docSnapshot = await companiesCollection.doc(companyId).get();
-      if (docSnapshot.exists) {
-        final data = docSnapshot.data() as Map<String, dynamic>;
-        if (data.isNotEmpty) {
-          final branches = data['branches'] as Map<String, dynamic>;
-          if (branches.isNotEmpty) {
-            return branches.entries
-                .map((branch) => Branch(
-                    name: branch.value.name,
-                    address: branch.value.address,
-                    latitude: branch.value.latitude,
-                    longitude: branch.value.longitude,
-                    radius: branch.value.radius))
-                .toList();
-          }
+  try {
+    final docSnapshot = await companiesCollection.doc(companyId).get();
+    if (docSnapshot.exists) {
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      if (data.isNotEmpty) {
+        final branches = data['branches'] as List<dynamic>;
+        if (branches.isNotEmpty) {
+          return branches.map((branchData) {
+            final branch = branchData as Map<String, dynamic>;
+            return Branch(
+              name: branch['name'],
+              address: branch['address'],
+              latitude: branch['latitude'],
+              longitude: branch['longitude'],
+              radius: branch['radius'],
+            );
+          }).toList();
         }
       }
-      return [];
-    } catch (e) {
-      return [];
     }
+    return [];
+  } catch (e) {
+    print("Error fetching branches: $e");
+    return [];
   }
+}
 
   /// Adds a new branch to the company.
   ///

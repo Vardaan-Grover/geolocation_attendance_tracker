@@ -9,12 +9,11 @@ import 'package:geolocation_attendance_tracker/services/firebase/firestore_funct
 import 'package:geolocation_attendance_tracker/ui/screens/manual_check_in_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/user_info_header.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/title_button.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UserHomeScreen extends StatefulWidget {
   final User user;
 
-  const UserHomeScreen(this.user, {Key? key}) : super(key: key);
+  const UserHomeScreen(this.user, {super.key});
 
   @override
   State<UserHomeScreen> createState() => _UserHomeScreenState();

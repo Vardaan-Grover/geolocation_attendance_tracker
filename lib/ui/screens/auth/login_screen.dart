@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
-
 import 'package:geolocation_attendance_tracker/ui/screens/home/admin_home_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/home/user_home_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/auth/sign_up_screen.dart';
@@ -21,21 +20,27 @@ class _LoginPageState extends State<LoginPage> {
   String? email;
   String? password;
   String? role;
+  bool isLoading = false; // Loading indicator state
+  String? errorMessage; // Error message state
 
   void onLogin() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+
+      setState(() {
+        isLoading = true; // Start showing loading indicator
+        errorMessage = null; // Clear any previous errors
+      });
 
       final result = await AuthFunctions.signInWithEmailAndPassword(
         email: email!,
         password: password!,
       );
       final authUser = AuthFunctions.getCurrentUser();
+
       if (result == "success" && authUser != null) {
         final fetchedUser = await FirestoreFunctions.fetchUser(authUser.uid);
-        print('Fetched User: $fetchedUser');
         if (fetchedUser != null) {
-          print("USER FOUND");
           final userRole = fetchedUser.role;
           if (userRole == "admin" || userRole == "super-admin") {
             Navigator.of(context).pushReplacement(
@@ -50,21 +55,31 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           } else {
-            print('Unknown role');
+            setState(() {
+              errorMessage = 'Unknown role assigned to the user.';
+            });
           }
         } else {
-          print('User not found');
+          setState(() {
+            errorMessage = 'User not found in the database.';
+          });
         }
       } else {
-        print('Either of the conditions failed');
+        setState(() {
+          errorMessage = 'Login failed. Please check your email and password.';
+        });
       }
+
+      setState(() {
+        isLoading = false; // Stop loading indicator
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Center(child: const Text('Login'))),
+      appBar: AppBar(title: const Center(child: Text('Login'))),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -98,20 +113,26 @@ class _LoginPageState extends State<LoginPage> {
                 },
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: onLogin,
-                  child: const Text('Login'),
+              if (errorMessage != null) // Show error message if present
+                Text(
+                  errorMessage!,
+                  style: const TextStyle(color: Colors.red),
                 ),
-              ),
+              const SizedBox(height: 20),
+              isLoading // Show CircularProgressIndicator if loading
+                  ? const CircularProgressIndicator()
+                  : SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: onLogin,
+                        child: const Text('Login'),
+                      ),
+                    ),
               const Spacer(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Don\'t have an account?',
-                  ),
+                  const Text('Don\'t have an account?'),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pushReplacement(

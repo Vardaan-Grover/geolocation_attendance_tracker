@@ -32,16 +32,16 @@ class AuthFunctions {
   }
 
   /// This function signs in a user using their email and password.
-  /// 
+  ///
   /// Parameters:
   /// - `email`: The email address of the user.
   /// - `password`: The password of the user.
-  /// 
+  ///
   /// Returns:
   /// - `"success"`: If the user was signed in successfully.
-  /// 
+  ///
   /// OR
-  /// 
+  ///
   /// - error message: If the sign in failed.
   static Future<String> signInWithEmailAndPassword(
       {required String email, required String password}) async {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
-import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 
-import 'package:geolocation_attendance_tracker/ui/screens/home_screen/admin_home_screen.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/home_screen/user_home_screen.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/sign_up_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home/admin_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home/user_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/auth/sign_up_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -114,8 +114,11 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => const SignUpScreen()));
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const SignUpScreen(),
+                        ),
+                      );
                     },
                     child: const Text('Sign Up'),
                   ),

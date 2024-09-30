@@ -4,7 +4,7 @@ class LocationFunctions {
   static final Location location = Location();
 
   /// Requests the user to grant location access.
-  /// 
+  ///
   /// Returns: A string message telling exactly what happened.
   static Future<String> requestLocation() async {
     bool serviceEnabled;
@@ -32,7 +32,7 @@ class LocationFunctions {
   }
 
   /// Enables background location tracking.
-  /// 
+  ///
   /// Returns:
   /// - `true`: If tracking is enabled successfully.
   /// - `false`: If tracking is not enabled successfully.
@@ -40,9 +40,8 @@ class LocationFunctions {
     return await location.enableBackgroundMode(enable: true);
   }
 
-
   /// Changes location tracking settings by modifying factors including intervals between location detection and accuracy of location.
-  /// 
+  ///
   /// Returns:
   /// - `true`: If settings changed successfully.
   /// - `false`: If setting could not be changed successfully.
@@ -54,5 +53,19 @@ class LocationFunctions {
       accuracy: accuracy,
       interval: interval,
     );
+  }
+
+  /// Fetches the current location of the user.
+  ///
+  /// Returns:
+  /// - `LocationData`: If location is fetched successfully.
+  /// - `null`: If location could not be fetched.
+  static Future<LocationData?> getUserLocation() async {
+    try {
+      return await location.getLocation();
+    } catch (e) {
+      print('Error fetching location: $e');
+      return null;
+    }
   }
 }

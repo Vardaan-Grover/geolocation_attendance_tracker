@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 
 class HelperFunctions {
   /// Generates a 5 digit code that may or may not be unique within the Firestore Database.

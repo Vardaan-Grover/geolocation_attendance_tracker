@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocation_attendance_tracker/providers/user_info_provider.dart';
-import 'package:geolocation_attendance_tracker/services/auth_functions.dart';
-import 'package:geolocation_attendance_tracker/services/firestore_functions.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/admin_role_pathway.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/home_screen/user_home_screen.dart';
-import 'package:geolocation_attendance_tracker/ui/screens/login_screen.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/auth/admin_role_pathway.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/home/user_home_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/auth/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -23,7 +23,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final userForm = ref.watch(userProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up')),
@@ -43,10 +42,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         minWidth: (MediaQuery.of(context).size.width - 36) / 2),
                     selectedColor: Colors.white,
                     fillColor: colorScheme.primary,
-                    children: const [
-                      Text('Employer', textAlign: TextAlign.center),
-                      Text('Employee', textAlign: TextAlign.center),
-                    ],
                     isSelected: isSelected,
                     onPressed: (index) {
                       setState(() {
@@ -60,6 +55,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         }
                       });
                     },
+                    children: const [
+                      Text('Employer', textAlign: TextAlign.center),
+                      Text('Employee', textAlign: TextAlign.center),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -128,87 +127,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       child: CircularProgressIndicator()) // Loading indicator
                 else
                   ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        setState(() {
-                          _isLoading = true;
-                        });
-
-                        final email = ref.read(userProvider)['email']!;
-                        final password = ref.read(userProvider)['password']!;
-
-                        final signUpResult =
-                            await AuthFunctions.signUpWithEmailAndPassword(
-                          email: email,
-                          password: password,
-                        );
-
-                        print('signUpResult: $signUpResult');
-
-                        if (signUpResult == 'success') {
-                          if (isSelected[1]) {
-                            final employeeCode =
-                                ref.read(userProvider)['employeeCode']!;
-                            final companyId = await FirestoreFunctions
-                                .findCompanyIdByEmployeeCode(employeeCode);
-
-                            if (companyId != null) {
-                              final authUser =
-                                  FirebaseAuth.instance.currentUser;
-                              if (authUser != null) {
-                                final result =
-                                    await FirestoreFunctions.createUser(
-                                  uid: authUser.uid,
-                                  fullName: ref.read(userProvider)['fullName'],
-                                  role: 'employee',
-                                  associatedCompanyId: companyId,
-                                );
-
-                                print('result: $result');
-
-                                if (result == 'success') {
-                                  print("WE ARE HERE ${authUser.uid}");
-                                  final user =
-                                      await FirestoreFunctions.fetchUser(
-                                          authUser.uid);
-                                  print('user $user');
-                                  if (user != null) {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            UserHomeScreen(user),
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  showErrorSnackbar(
-                                      context, 'Error creating user: $result');
-                                }
-                              }
-                            } else {
-                              showErrorSnackbar(context,
-                                  'Invalid Employee UID. Please try again.');
-                            }
-                          } else {
-                            // Employer logic
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const CompanyScreen(),
-                              ),
-                            );
-                          }
-                        } else {
-                          showErrorSnackbar(
-                              context, 'Error signing up: $signUpResult');
-                        }
-
-                        setState(() {
-                          _isLoading = false;
-                        });
-                      }
-                    },
+                    onPressed: onSignUp,
                     child: const Text('Sign Up'),
                   ),
                 const SizedBox(height: 10),
@@ -241,6 +160,80 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  void onSignUp() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final email = ref.read(userProvider)['email']!;
+      final password = ref.read(userProvider)['password']!;
+
+      final signUpResult = await AuthFunctions.signUpWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      print('signUpResult: $signUpResult');
+
+      if (signUpResult == 'success') {
+        if (isSelected[1]) {
+          final employeeCode = ref.read(userProvider)['employeeCode']!;
+          final companyId =
+              await FirestoreFunctions.findCompanyIdByEmployeeCode(
+                  employeeCode);
+
+          if (companyId != null) {
+            final authUser = FirebaseAuth.instance.currentUser;
+            if (authUser != null) {
+              final result = await FirestoreFunctions.createUser(
+                uid: authUser.uid,
+                fullName: ref.read(userProvider)['fullName'],
+                role: 'employee',
+                associatedCompanyId: companyId,
+              );
+
+              print('result: $result');
+
+              if (result == 'success') {
+                print("WE ARE HERE ${authUser.uid}");
+                final user = await FirestoreFunctions.fetchUser(authUser.uid);
+                print('user $user');
+                if (user != null) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserHomeScreen(user),
+                    ),
+                  );
+                }
+              } else {
+                showErrorSnackbar(context, 'Error creating user: $result');
+              }
+            }
+          } else {
+            showErrorSnackbar(
+                context, 'Invalid Employee UID. Please try again.');
+          }
+        } else {
+          // Employer logic
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CompanyScreen(),
+            ),
+          );
+        }
+      } else {
+        showErrorSnackbar(context, 'Error signing up: $signUpResult');
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void showErrorSnackbar(BuildContext context, String message) {

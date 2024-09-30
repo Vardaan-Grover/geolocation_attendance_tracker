@@ -10,8 +10,14 @@ plugins {
 
 android {
     namespace = "com.example.geolocation_attendance_tracker"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
+
+    dependencies{
+        implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+        implementation 'com.google.android.gms:play-services-location:18.0.0'
+        implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -40,6 +46,8 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+
+
 }
 
 flutter {

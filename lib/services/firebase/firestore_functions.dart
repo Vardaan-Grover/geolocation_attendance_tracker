@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocation_attendance_tracker/models/branch_model.dart';
 import 'package:geolocation_attendance_tracker/models/company_model.dart';
 import 'package:geolocation_attendance_tracker/models/in_out_duration_model.dart';
+import 'package:geolocation_attendance_tracker/models/offsite_model.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/services/misc/helper_functions.dart';
 
@@ -59,6 +60,7 @@ class FirestoreFunctions {
       await companiesCollection.doc(companyId).set({
         'name': name,
         'branches': [],
+        'offsites': [],
         'employee_code': employeeCode,
         'admin_code': adminCode,
       });
@@ -206,32 +208,32 @@ class FirestoreFunctions {
   /// Returns:
   /// - A list of `Branch` objects if the branches were found. Else, an empty list.
   static Future<List<Branch>> fetchBranches(String companyId) async {
-  try {
-    final docSnapshot = await companiesCollection.doc(companyId).get();
-    if (docSnapshot.exists) {
-      final data = docSnapshot.data() as Map<String, dynamic>;
-      if (data.isNotEmpty) {
-        final branches = data['branches'] as List<dynamic>;
-        if (branches.isNotEmpty) {
-          return branches.map((branchData) {
-            final branch = branchData as Map<String, dynamic>;
-            return Branch(
-              name: branch['name'],
-              address: branch['address'],
-              latitude: branch['latitude'],
-              longitude: branch['longitude'],
-              radius: branch['radius'],
-            );
-          }).toList();
+    try {
+      final docSnapshot = await companiesCollection.doc(companyId).get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        if (data.isNotEmpty) {
+          final branches = data['branches'] as List<dynamic>;
+          if (branches.isNotEmpty) {
+            return branches.map((branchData) {
+              final branch = branchData as Map<String, dynamic>;
+              return Branch(
+                name: branch['name'],
+                address: branch['address'],
+                latitude: branch['latitude'],
+                longitude: branch['longitude'],
+                radius: branch['radius'],
+              );
+            }).toList();
+          }
         }
       }
+      return [];
+    } catch (e) {
+      print("Error fetching branches: $e");
+      return [];
     }
-    return [];
-  } catch (e) {
-    print("Error fetching branches: $e");
-    return [];
   }
-}
 
   /// Adds a new branch to the company.
   ///
@@ -260,6 +262,44 @@ class FirestoreFunctions {
           await companiesCollection
               .doc(companyId)
               .update({"branches": updatedBranches});
+
+          return 'success';
+        }
+      }
+
+      return 'Some error occurred. Please try again later';
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  /// Adds a new offsite location to the company.
+  ///
+  /// Parameters:
+  /// - `companyId`: The ID of the company in which you want to add this branch
+  /// - `offsite`: The `Offsite` object you want to add.
+  ///
+  /// Returns:
+  /// - `"success"`: If branch added successfully
+  /// - `error message`: If some error occurred
+  static Future<String> addOffsite({
+    required String companyId,
+    required Offsite offsite,
+  }) async {
+    try {
+      final docSnapshot = await companiesCollection.doc(companyId).get();
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        if (data.isNotEmpty) {
+          final offsites = data['offsites'] as List<dynamic>;
+          final List<Map<String, dynamic>> updatedOffsites = [
+            ...offsites,
+            offsite.toMap()
+          ];
+
+          await companiesCollection
+              .doc(companyId)
+              .update({"offsites": updatedOffsites});
 
           return 'success';
         }

@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/constants.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/branch/add_branch_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/branch/add_offsite_location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class BranchRawCoordinatesModalSheet extends StatefulWidget {
   final User user;
+  final String whereTo;
 
-  const BranchRawCoordinatesModalSheet(this.user, {super.key});
+  const BranchRawCoordinatesModalSheet({
+    super.key,
+    required this.user,
+    required this.whereTo,
+  });
 
   @override
   State<BranchRawCoordinatesModalSheet> createState() =>
@@ -35,15 +41,26 @@ class _BranchRawCoordinatesModalSheetState
 
       final latitude = double.parse(_latitudeController.text);
       final longitude = double.parse(_longitudeController.text);
-
-      Navigator.of(context).push(
+      if (widget.whereTo == "branch") {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AddBranchScreen(
+              selectedCoordinates: LatLng(latitude, longitude),
+              user: widget.user,
+            ),
+          ),
+        );
+      }
+      if (widget.whereTo == "offsite") {
+        Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => AddBranchScreen(
+          builder: (context) => AddOffsiteLocationScreen(
             selectedCoordinates: LatLng(latitude, longitude),
             user: widget.user,
           ),
         ),
       );
+      }
     }
   }
 

@@ -3,13 +3,19 @@ import 'package:geolocation_attendance_tracker/constants.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/services/location_functions.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/branch/add_branch_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/branch/add_offsite_location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class PinOnMapScreen extends StatefulWidget {
   final User user;
+  final String whereTo;
 
-  const PinOnMapScreen(this.user, {super.key});
+  const PinOnMapScreen({
+    super.key,
+    required this.user,
+    required this.whereTo,
+  });
 
   @override
   State<PinOnMapScreen> createState() => _PinOnMapScreenState();
@@ -46,14 +52,27 @@ class _PinOnMapScreenState extends State<PinOnMapScreen> {
   }
 
   void onProceed() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => AddBranchScreen(
-          user: widget.user,
-          selectedCoordinates: _markers.first.position,
+    if (widget.whereTo == "branch") {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AddBranchScreen(
+            user: widget.user,
+            selectedCoordinates: _markers.first.position,
+          ),
         ),
-      ),
-    );
+      );
+    }
+
+    if (widget.whereTo == "offsite") {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AddOffsiteLocationScreen(
+            user: widget.user,
+            selectedCoordinates: _markers.first.position,
+          ),
+        ),
+      );
+    }
   }
 
   void _onMapCreated(GoogleMapController controller) {

@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/employee_attendence_screen.dart';
 
-class EmployeesListScreen extends StatefulWidget {
+class EmployeesScreen extends StatefulWidget {
   final User user;
 
-  const EmployeesListScreen(this.user, {super.key});
+  const EmployeesScreen(this.user, {super.key});
 
   @override
-  State<EmployeesListScreen> createState() =>  EmployeesListScreenState();
+  State<EmployeesScreen> createState() => EmployeesScreenState();
 }
 
-class EmployeesListScreenState extends State<EmployeesListScreen> {
+class EmployeesScreenState extends State<EmployeesScreen> {
   late Future<List<User>> _employeesFuture;
 
   @override
   void initState() {
     super.initState();
     // Fetch employees using the associated company ID of the user
-    _employeesFuture = FirestoreFunctions.fetchEmployeesForCompany(widget.user.associatedCompanyId);
+    _employeesFuture = FirestoreFunctions.fetchEmployeesForCompany(
+        widget.user.associatedCompanyId);
   }
 
   @override
@@ -31,9 +33,11 @@ class EmployeesListScreenState extends State<EmployeesListScreen> {
         future: _employeesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator()); // Show loading spinner
+            return const Center(
+                child: CircularProgressIndicator()); // Show loading spinner
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error fetching employees: ${snapshot.error}'));
+            return Center(
+                child: Text('Error fetching employees: ${snapshot.error}'));
           } else if (snapshot.hasData && snapshot.data!.isEmpty) {
             return const Center(child: Text('No employees found.'));
           } else if (snapshot.hasData) {
@@ -43,15 +47,24 @@ class EmployeesListScreenState extends State<EmployeesListScreen> {
               itemBuilder: (context, index) {
                 final employee = employees[index];
                 return ListTile(
-                  leading: Icon(Icons.person),
+                  leading: const Icon(Icons.person),
                   title: Text(employee.fullName),
-                  subtitle: Text(employee.role),  // Display the employee role
+                  subtitle: Text(employee.role), // Display the employee role
                   trailing: IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: const Icon(Icons.edit),
                     onPressed: () {
                       // Handle edit employee action
                     },
                   ),
+                  onTap: () {
+                    // Navigate to EmployeeAttendanceScreen when tapped
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EmployeeAttendanceScreen(employeeName: employee.fullName,),
+                      ),
+                    );
+                  },
                 );
               },
             );

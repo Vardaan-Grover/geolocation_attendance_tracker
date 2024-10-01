@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:geolocation_attendance_tracker/constants.dart';
+import 'package:geolocation_attendance_tracker/models/offsite_model.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class AddOffsiteLocation extends StatefulWidget {
+class AddOffsiteLocationScreen extends StatefulWidget {
   final User user;
   final LatLng selectedCoordinates;
 
-  const AddOffsiteLocation({
-    super.key,
+  const AddOffsiteLocationScreen({
+    super.key,  
     required this.selectedCoordinates,
     required this.user,
   });
 
   @override
-  State<AddOffsiteLocation> createState() => _AddOffsiteLocationState();
+  State<AddOffsiteLocationScreen> createState() =>
+      _AddOffsiteLocationScreenState();
 }
 
-class _AddOffsiteLocationState extends State<AddOffsiteLocation> {
+class _AddOffsiteLocationScreenState extends State<AddOffsiteLocationScreen> {
   bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -37,30 +40,35 @@ class _AddOffsiteLocationState extends State<AddOffsiteLocation> {
         isLoading = true;
       });
 
-      // Get the form data
+      // Get form data
       final locationName = _locationNameController.text;
       final locationAddress = _locationAddressController.text;
       final locationCoordinates = widget.selectedCoordinates;
 
-      // Debugging output
-      print('Super Admin ID: ${widget.user.id}');
+      // Debug output
+      print('Associated Company ID: ${widget.user.associatedCompanyId}');
       print('Offsite Location Name: $locationName');
       print('Offsite Location Address: $locationAddress');
-      print('Coordinates: ${locationCoordinates.latitude}, ${locationCoordinates.longitude}');
+      print(
+          'Coordinates: ${locationCoordinates.latitude}, ${locationCoordinates.longitude}');
 
-      // Save the offsite location using FirestoreFunctions
-      final result = await FirestoreFunctions.addOffsiteLocation(
-        userId: widget.user.id, // Super Admin ID
-        locationData: {
-          'name': locationName,
-          'address': locationAddress,
-          'latitude': locationCoordinates.latitude,
-          'longitude': locationCoordinates.longitude,
-        },
+      // Create Offsite object
+      final offsite = Offsite(
+        name: locationName,
+        address: locationAddress,
+        latitude: locationCoordinates.latitude,
+        longitude: locationCoordinates.longitude,
       );
 
+      // Add Offsite Location using FirestoreFunctions
+      final result = await FirestoreFunctions.addOffsite(
+        companyId: widget.user.associatedCompanyId,
+        offsite: offsite,
+      );
+
+      // Handle result
       if (result == 'success') {
-        Navigator.of(context).pop();
+        Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -82,7 +90,7 @@ class _AddOffsiteLocationState extends State<AddOffsiteLocation> {
         title: const Text('Add Offsite Location'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(largeSpacing),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -112,7 +120,7 @@ class _AddOffsiteLocationState extends State<AddOffsiteLocation> {
                 onPressed: isLoading ? null : _submitForm,
                 child: isLoading
                     ? const CircularProgressIndicator()
-                    : const Text('Add Location'),
+                    : const Text('Submit'),
               ),
             ],
           ),

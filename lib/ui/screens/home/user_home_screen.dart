@@ -91,7 +91,10 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 
   Future<void> startLocationService() async {
     try {
-      await platform.invokeMethod('startLocationUpdates');
+      await platform.invokeMethod(
+        'startLocationUpdates',
+        {"uid": authUser!.uid},
+      );
     } on PlatformException catch (e) {
       print("Error: $e");
     }

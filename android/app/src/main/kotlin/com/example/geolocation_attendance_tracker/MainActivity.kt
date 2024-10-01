@@ -14,7 +14,8 @@ class MainActivity: FlutterActivity()
         MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
             call, result ->
             if (call.method == "startLocationUpdates") {
-                startService()
+                val uid = call.argument("uid") ?: ""
+                startService(uid)
             }
             else if (call.method == "stopLocationUpdates") {
                 stopService()
@@ -27,8 +28,9 @@ class MainActivity: FlutterActivity()
         }
     }
 
-    private fun startService() {
+    private fun startService(uid: String) {
         val serviceIntent = Intent(this, LocationService::class.java)
+        serviceIntent.putExtra("uid", uid);
         startService(serviceIntent)
     }
 

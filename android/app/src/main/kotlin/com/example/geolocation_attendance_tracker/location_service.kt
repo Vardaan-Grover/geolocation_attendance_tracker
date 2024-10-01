@@ -20,7 +20,7 @@ import okhttp3.*
 import java.io.IOException
 
 class LocationService : Service() {
-
+    private var uid: String? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
     private val client = OkHttpClient()
@@ -32,7 +32,12 @@ class LocationService : Service() {
 
         createNotificationChannel()
         startForegroundService()
-        startLocationUpdates()
+        startLocationUpdates();
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        uid = intent?.getStringExtra("uid")
+        return START_STICKY
     }
 
     @TargetApi(Build.VERSION_CODES.ECLAIR)
@@ -73,7 +78,7 @@ class LocationService : Service() {
                 locationResult ?: return
                 for (location in locationResult.locations) {
                     updateNotification(location)
-                    sendLocationToServer(location)
+                    sendLocationToServer(location, uid)
                 }
             }
         }
@@ -85,12 +90,13 @@ class LocationService : Service() {
         )
     }
 
-    private fun sendLocationToServer(location: Location) {
+    private fun sendLocationToServer(location: Location, uid: String?) {
         val url = "https://calculatedistanceandlogtrackingdata-2wkykz2f3q-uc.a.run.app"
         val json = """
         {
             "latitude": ${location.latitude},
-            "longitude": ${location.longitude}
+            "longitude": ${location.longitude},
+            "uid": $uid
         }
     """
 
@@ -107,6 +113,7 @@ class LocationService : Service() {
         // Add logging before sending the request
         Log.d("LocationSharing", "Sending location to server: $url")
         Log.d("LocationSharing", "Location data: $json")
+        Log.d("LocationSharing", "Service started with UID: $uid")
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {

@@ -5,10 +5,15 @@ import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/branch/pin_on_map_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/branch_raw_coordinates_modal_sheet.dart';
 
-class AddBranchPathwayModalSheet extends StatelessWidget {
+class AddBranchOffsitePathwayModalSheet extends StatelessWidget {
   final User user;
+  final String whereTo;
 
-  const AddBranchPathwayModalSheet(this.user, {super.key});
+  const AddBranchOffsitePathwayModalSheet({
+    super.key,
+    required this.user,
+    required this.whereTo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,10 @@ class AddBranchPathwayModalSheet extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => PinOnMapScreen(user),
+                  builder: (context) => PinOnMapScreen(
+                    user: user,
+                    whereTo: whereTo,
+                  ),
                 ),
               );
             },
@@ -37,7 +45,10 @@ class AddBranchPathwayModalSheet extends StatelessWidget {
               showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
-                  builder: (context) => BranchRawCoordinatesModalSheet(user));
+                  builder: (context) => BranchRawCoordinatesModalSheet(
+                        user: user,
+                        whereTo: whereTo,
+                      ));
             },
           ),
         ],

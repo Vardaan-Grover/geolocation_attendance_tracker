@@ -7,10 +7,13 @@ import 'package:geolocation_attendance_tracker/models/company_model.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/branch/add_offsite_location.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/branch/view_branches_screen.dart';
+import 'package:geolocation_attendance_tracker/ui/screens/employee_list_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/add_branch_pathway_modal_sheet.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/title_button.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/user_info_header.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   final User user;
@@ -23,6 +26,8 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Stream<DocumentSnapshot<Map<String, dynamic>>>? _companyStream;
+  final _latitudeController = TextEditingController();
+  final _longitudeController = TextEditingController();
 
   void startCompanyStream() {
     final authUser = AuthFunctions.getCurrentUser();
@@ -139,7 +144,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         padding: const EdgeInsets.all(largeSpacing),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: [ 
+                          children: [
                             UserInfoHeader(
                               user: widget.user,
                               company: company,
@@ -152,8 +157,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               icon: Icons.business,
                               onPressed: () => Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      ViewBranchesScreen(company),
+                                  builder: (context) => ViewBranchesScreen(
+                                    company: company,
+                                    user: widget.user,
+                                  ),
                                 ),
                               ),
                             ),
@@ -166,22 +173,40 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                   context: context,
                                   isScrollControlled: true,
                                   builder: (context) =>
-                                      AddBranchPathwayModalSheet(widget.user),
+                                      AddBranchOffsitePathwayModalSheet(
+                                    user: widget.user,
+                                    whereTo: "branch",
+                                  ),
                                 );
                               },
                             ),
                             const SizedBox(height: mediumSpacing),
                             TitleButton(
-                              title: 'Attendance Reports',
-                              icon: Icons.table_chart_outlined,
-                              onPressed: () {},
+                              title: 'Add an Offsite',
+                              icon: Icons.add_home_work_outlined  ,
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) =>
+                                      AddBranchOffsitePathwayModalSheet(
+                                    user: widget.user,
+                                    whereTo: "offsite",
+                                  ),
+                                );
+                              },
                             ),
                             const SizedBox(height: mediumSpacing),
                             TitleButton(
-                              title: 'Employee List',
+                              title: 'Employee List/Report',
                               icon: Icons.list_alt,
-                              onPressed: () {},
-                            )
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        EmployeesScreen(widget.user)),
+                              ),
+                            ),
+                            const SizedBox(height: mediumSpacing),
                           ],
                         ),
                       );

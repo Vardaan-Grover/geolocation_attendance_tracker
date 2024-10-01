@@ -26,35 +26,33 @@ class _ManualCheckInScreenState extends State<ManualCheckInScreen> {
     _requestPermissions();
   }
 
-  Future<void> _requestPermissions() async {
-    
+  Future<bool> _requestPermissions() async {
     PermissionStatus permission = await Permission.locationWhenInUse.status;
 
     if (permission.isDenied) {
-      
       await Permission.locationWhenInUse.request();
     }
 
-    
     if (await Permission.locationWhenInUse.isGranted) {
-      
       if (await Permission.locationAlways.isDenied) {
         await Permission.locationAlways.request();
       }
 
-      _getCurrentLocation(); 
+      _getCurrentLocation();
     } else {
       setState(() {
-        _isLoading = false; 
+        _isLoading = false;
       });
     }
+    return true;
   }
 
   Future<void> _getCurrentLocation() async {
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _currentLocation = LatLng(position.latitude, position.longitude);
-      _isLoading = false; 
+      _isLoading = false;
     });
     _moveCamera(_currentLocation!);
   }
@@ -197,7 +195,8 @@ class _ManualCheckInScreenState extends State<ManualCheckInScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'Time Spent: ${checkOutTime!.difference(checkInTime!).inMinutes} minutes',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
               ],

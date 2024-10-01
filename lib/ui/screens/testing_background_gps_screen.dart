@@ -10,12 +10,12 @@ class TestingBackgroundGpsScreen extends StatefulWidget {
 }
 
 class _TestingBackgroundGpsScreenState extends State<TestingBackgroundGpsScreen> {
-  static const platform = MethodChannel('com.example.location_service');
-
   @override
   void initState() {
     super.initState();
   }
+
+  static const platform = MethodChannel('com.example.location_service');
 
   Future<void> requestLocationPermission() async {
     var status = await [

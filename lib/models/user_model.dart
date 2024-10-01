@@ -35,7 +35,14 @@ class User {
               data['selected_branch_coordinates'] as List<dynamic>)
           : null,
       tracking: data['tracking'] != null
-          ? Map<String, List<InOutDuration>>.from(data['tracking'] as Map)
+          ? (data['tracking'] as Map<String, dynamic>).map(
+              (key, value) => MapEntry(
+                key,
+                (value as List<dynamic>)
+                    .map((x) => InOutDuration.fromFirestore(x))
+                    .toList(),
+              ),
+            )
           : null,
     );
     return userMade;

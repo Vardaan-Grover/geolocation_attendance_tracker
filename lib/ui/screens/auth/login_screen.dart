@@ -37,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
       final authUser = AuthFunctions.getCurrentUser();
 
       if (result == "success" && authUser != null) {
+        print("IDHARRRRRRR ${authUser.uid}");
         final fetchedUser = await FirestoreFunctions.fetchUser(authUser.uid);
         if (fetchedUser != null) {
           final userRole = fetchedUser.role;
@@ -59,7 +60,8 @@ class _LoginPageState extends State<LoginPage> {
           showErrorSnackBar('User not found in the database.');
         }
       } else {
-        showErrorSnackBar('Login failed. Please check your email and password.');
+        showErrorSnackBar(
+            'Login failed. Please check your email and password.');
       }
 
       setState(() {

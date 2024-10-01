@@ -1,14 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocation_attendance_tracker/constants.dart';
 import 'package:geolocation_attendance_tracker/models/company_model.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/models/branch_model.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/firestore_functions.dart';
+import 'package:geolocation_attendance_tracker/services/location_functions.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/manual_check_in_screen.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/home/user_info_header.dart';
 import 'package:geolocation_attendance_tracker/ui/widgets/title_button.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserHomeScreen extends StatefulWidget {
@@ -52,6 +55,53 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     setState(() {
       selectedBranchCoordinates = branchCoordinates;
     });
+  }
+
+  static const platform = MethodChannel('com.example.location_service');
+
+  Future<bool> requestNotificationPermission() async {
+    final status = await Permission.notification.request();
+    if (status.isGranted) {
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<bool> requestLocationPermission() async {
+    // Request location permission
+    await Permission.locationWhenInUse.request();
+    var status = await Permission.locationAlways.request();
+
+    if (status.isGranted) {
+      // Permission granted
+      return true;
+    } else if (status.isDenied) {
+      // Permission denied
+      return false;
+    } else if (status.isPermanentlyDenied) {
+      // Permission permanently denied, open app settings
+      openAppSettings();
+      return false;
+    }
+
+    return false;
+  }
+
+  Future<void> startLocationService() async {
+    try {
+      await platform.invokeMethod('startLocationUpdates');
+    } on PlatformException catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<void> stopLocationService() async {
+    try {
+      await platform.invokeMethod('stopLocationUpdates');
+    } on PlatformException catch (e) {
+      print("Failed to stop location service: ${e.message}");
+    }
   }
 
   @override
@@ -181,11 +231,25 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   }
 
   void setIsLocationTrackingActive(bool value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLocationTrackingActive', value);
-    setState(() {
-      isLocationTrackingActive = value;
-    });
+    if (value) {
+      final isNotificationGranted = await requestNotificationPermission();
+      final isLocationGranted = await requestLocationPermission();
+      if (isNotificationGranted && isLocationGranted) {
+        startLocationService();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLocationTrackingActive', value);
+        setState(() {
+          isLocationTrackingActive = value;
+        });
+      }
+    } else {
+      stopLocationService();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLocationTrackingActive', value);
+      setState(() {
+        isLocationTrackingActive = value;
+      });
+    }
   }
 
   // Method to show bottom sheet for selecting branch

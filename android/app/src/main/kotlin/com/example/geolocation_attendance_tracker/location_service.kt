@@ -63,8 +63,8 @@ class LocationService : Service() {
 
     private fun startLocationUpdates() {
         val locationRequest = LocationRequest.create().apply {
-            interval = 10000
-            fastestInterval = 5000
+            interval = 12000
+            fastestInterval = 8000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
@@ -86,7 +86,7 @@ class LocationService : Service() {
     }
 
     private fun sendLocationToServer(location: Location) {
-        val url = "https://666bef2749dbc5d7145bd9d0.mockapi.io/locationapi"
+        val url = "https://calculatedistanceandlogtrackingdata-2wkykz2f3q-uc.a.run.app"
         val json = """
         {
             "latitude": ${location.latitude},

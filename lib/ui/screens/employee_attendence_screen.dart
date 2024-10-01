@@ -121,9 +121,7 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
       MaterialPageRoute(
         builder: (context) => CheckInCheckOutScreen(
           date: date,
-          checkIn: _attendanceData[date]?[0] ?? 'N/A',
-          checkOut: _attendanceData[date]?[1] ?? 'N/A',
-          
+          uid: widget.employeeName,
         ),
       ),
     );

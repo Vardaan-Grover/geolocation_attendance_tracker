@@ -214,7 +214,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      const ManualCheckInScreen(),
+                                      ManualCheckInScreen(company),
                                 ),
                               );
                             },

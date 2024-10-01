@@ -61,7 +61,7 @@ class EmployeesScreenState extends State<EmployeesScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => EmployeeAttendanceScreen(
-                          user: widget.user,
+                          user: employees.values.elementAt(index),
                           userId: employees.keys.elementAt(index),
                         ),
                       ),

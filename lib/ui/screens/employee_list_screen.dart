@@ -13,7 +13,7 @@ class EmployeesScreen extends StatefulWidget {
 }
 
 class EmployeesScreenState extends State<EmployeesScreen> {
-  late Future<List<User>> _employeesFuture;
+  late Future<Map<String, User>> _employeesFuture;
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class EmployeesScreenState extends State<EmployeesScreen> {
       appBar: AppBar(
         title: Text('Employees of ${widget.user.fullName}\'s Company'),
       ),
-      body: FutureBuilder<List<User>>(
+      body: FutureBuilder<Map<String, User>>(
         future: _employeesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -45,11 +45,10 @@ class EmployeesScreenState extends State<EmployeesScreen> {
             return ListView.builder(
               itemCount: employees.length,
               itemBuilder: (context, index) {
-                final employee = employees[index];
                 return ListTile(
                   leading: const Icon(Icons.person),
-                  title: Text(employee.fullName),
-                  subtitle: Text(employee.role), // Display the employee role
+                  title: Text(employees.values.elementAt(index).fullName),
+                  subtitle: Text(employees.values.elementAt(index).role),
                   trailing: IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () {
@@ -61,7 +60,10 @@ class EmployeesScreenState extends State<EmployeesScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EmployeeAttendanceScreen(employeeName: employee.fullName,),
+                        builder: (context) => EmployeeAttendanceScreen(
+                          user: widget.user,
+                          userId: employees.keys.elementAt(index),
+                        ),
                       ),
                     );
                   },

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocation_attendance_tracker/models/in_out_duration_model.dart';
+import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 
 class CheckInCheckOutScreen extends StatefulWidget {
   final DateTime date;
@@ -15,49 +15,27 @@ class CheckInCheckOutScreen extends StatefulWidget {
   });
 
   @override
-  State<CheckInCheckOutScreen>  createState() => _CheckInCheckOutScreenState();
+  State<CheckInCheckOutScreen> createState() => _CheckInCheckOutScreenState();
 }
 
 class _CheckInCheckOutScreenState extends State<CheckInCheckOutScreen> {
-  final List<InOutDuration> inOutDurations = [];
+  Stream<DocumentSnapshot<Map<String, dynamic>>>? attendanceStream;
 
-  // Simulated stream for demonstration purposes. Replace with your actual backend stream.
-  Stream<DateTime> get checkInCheckOutStream async* {
-    await Future.delayed(const Duration(seconds: 1));
-    yield DateTime.now();
-    await Future.delayed(const Duration(seconds: 5));
-    yield DateTime.now().add(const Duration(minutes: 10));
-    await Future.delayed(const Duration(seconds: 5));
-    yield DateTime.now().add(const Duration(minutes: 20));
+  @override
+  void initState() {
+    super.initState();
+    startAttendanceStream();
   }
 
-  // Function to update the tracking in Firestore
-  Future<void> updateTrackingBackend(Timestamp checkIn, Timestamp? checkOut) async {
-    InOutDuration? lastRecord;
-
-    if (inOutDurations.isNotEmpty && inOutDurations.last.outTime == null) {
-      lastRecord = inOutDurations.last;
-      lastRecord.updateOutTimeAndMilliseconds(checkOut!);
-    } else {
-      lastRecord = InOutDuration(
-        inTime: checkIn,
-        placeName: 'Office',
-        placeAddress: 'Office Address',
-      );
-      inOutDurations.add(lastRecord);
-    }
-
-    final result = await updateTracking(
-      uid: widget.uid,
-      date: DateFormat('yyyy-MM-dd').format(widget.date),
-      obj: lastRecord,
-    );
-
-    if (result != 'success') {
-      // Handle failure case
-      print("Error updating tracking data");
-    } else {
-      setState(() {}); // Update UI after success
+  void startAttendanceStream() {
+    final authUser = AuthFunctions.getCurrentUser();
+    if (authUser != null) {
+      setState(() {
+        attendanceStream = FirebaseFirestore.instance
+            .collection('users')
+            .doc(widget.uid)
+            .snapshots();
+      });
     }
   }
 
@@ -85,37 +63,72 @@ class _CheckInCheckOutScreenState extends State<CheckInCheckOutScreen> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            StreamBuilder<DateTime>(
-              stream: checkInCheckOutStream, // Replace with actual backend stream
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  if (inOutDurations.isEmpty || inOutDurations.last.outTime != null) {
-                    updateTrackingBackend(Timestamp.fromDate(snapshot.data!), null);
-                  } else {
-                    updateTrackingBackend(
-                      inOutDurations.last.inTime,
-                      Timestamp.fromDate(snapshot.data!),
-                    );
-                  }
-                }
+            Expanded(
+              child: SingleChildScrollView(
+                child: StreamBuilder(
+                  stream: attendanceStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                            'Error fetching attendance: ${snapshot.error}'),
+                      );
+                    }
 
-                return Expanded(
-                  child: SingleChildScrollView(
-                    child: Table(
-                      border: TableBorder.all(),
-                      columnWidths: const {
-                        0: FlexColumnWidth(2),
-                        1: FlexColumnWidth(2),
-                        2: FlexColumnWidth(1),
-                      },
-                      children: [
-                        _buildTableHeader(),
-                        ..._buildTableRows(),
-                      ],
-                    ),
-                  ),
-                );
-              },
+                    print('Snapshot $snapshot');
+
+                    final data = snapshot.data?.data();
+                    if (data != null) {
+                      print(data);
+                      final tracking =
+                          (data['tracking'] as Map<String, dynamic>).map(
+                        (key, value) => MapEntry(
+                          key,
+                          (value as List<dynamic>)
+                              .map((x) => InOutDuration.fromFirestore(x))
+                              .toList(),
+                        ),
+                      );
+
+                      final selectedDateRecords = tracking[
+                          DateFormat('yyyy-MM-dd').format(widget.date)];
+
+                      if (selectedDateRecords == null ||
+                          selectedDateRecords.isEmpty) {
+                        return Center(
+                          child: Text('No records found for this day...'),
+                        );
+                      }
+
+                      return Expanded(
+                        child: SingleChildScrollView(
+                          child: Table(
+                            border: TableBorder.all(),
+                            columnWidths: const {
+                              0: FlexColumnWidth(1),
+                              1: FlexColumnWidth(1),
+                              2: FlexColumnWidth(1),
+                              3: FlexColumnWidth(2),
+                            },
+                            children: [
+                              _buildTableHeader(),
+                              ..._buildTableRows(selectedDateRecords),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Center(
+                      child: Text('Something went wrong'),
+                    );
+                  },
+                ),
+              ),
             ),
           ],
         ),
@@ -130,22 +143,29 @@ class _CheckInCheckOutScreenState extends State<CheckInCheckOutScreen> {
       children: const [
         Padding(
           padding: EdgeInsets.all(8.0),
-          child: Text('Check-in', style: TextStyle(fontWeight: FontWeight.bold)),
+          child:
+              Text('Check-in', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         Padding(
           padding: EdgeInsets.all(8.0),
-          child: Text('Check-out', style: TextStyle(fontWeight: FontWeight.bold)),
+          child:
+              Text('Check-out', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         Padding(
           padding: EdgeInsets.all(8.0),
-          child: Text('Duration', style: TextStyle(fontWeight: FontWeight.bold)),
+          child:
+              Text('Duration', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ],
     );
   }
 
   // Dynamically builds table rows for check-ins, check-outs, and duration
-  List<TableRow> _buildTableRows() {
+  List<TableRow> _buildTableRows(List<InOutDuration> inOutDurations) {
     return List.generate(inOutDurations.length, (index) {
       final duration = inOutDurations[index];
 
@@ -165,6 +185,10 @@ class _CheckInCheckOutScreenState extends State<CheckInCheckOutScreen> {
             padding: const EdgeInsets.all(8.0),
             child: Text(calculateTimeDifference(duration.durationInMinutes)),
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(inOutDurations[index].placeName),
+          ),
         ],
       );
     });
@@ -178,7 +202,8 @@ Future<String> updateTracking({
   required InOutDuration obj,
 }) async {
   try {
-    final docSnapshot = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final docSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
     if (docSnapshot.exists) {
       final data = docSnapshot.data() as Map<String, dynamic>;
       if (data.isNotEmpty) {
@@ -191,7 +216,10 @@ Future<String> updateTracking({
           tracking[date] = [obj.toMap()];
         }
 
-        await FirebaseFirestore.instance.collection('users').doc(uid).update({"tracking": tracking});
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .update({"tracking": tracking});
         return 'success';
       } else {
         await FirebaseFirestore.instance.collection('users').doc(uid).update({

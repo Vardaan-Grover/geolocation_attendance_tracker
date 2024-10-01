@@ -418,7 +418,8 @@ class FirestoreFunctions {
     }
   }
 
-  static Future<List<User>> fetchEmployeesForCompany(String companyId) async {
+  static Future<Map<String, User>> fetchEmployeesForCompany(
+      String companyId) async {
     try {
       final querySnapshot = await usersCollection
           .where('associated_company_id', isEqualTo: companyId)
@@ -426,15 +427,17 @@ class FirestoreFunctions {
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        return querySnapshot.docs.map((doc) {
+        final Map<String, User> obj = {};
+        for (final doc in querySnapshot.docs) {
           final data = doc.data() as Map<String, dynamic>;
-          return User.fromFirestore(data);
-        }).toList();
+          obj[doc.id] = User.fromFirestore(data);
+        }
+        return obj;
       }
 
-      return [];
+      return {};
     } catch (e) {
-      return [];
+      return {};
     }
   }
 

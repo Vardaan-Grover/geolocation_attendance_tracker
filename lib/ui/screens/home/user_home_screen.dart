@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocation_attendance_tracker/constants.dart';
 import 'package:geolocation_attendance_tracker/models/company_model.dart';
+import 'package:geolocation_attendance_tracker/models/in_out_duration_model.dart';
 import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/models/branch_model.dart';
 import 'package:geolocation_attendance_tracker/services/firebase/auth_functions.dart';
@@ -193,8 +194,57 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                             children: [
                               const Text('Working Time Record For Today',
                                   style: TextStyle(fontSize: 20)),
-                              Text('6hr 43min',
-                                  style: const TextStyle(fontSize: 20)),
+                              StreamBuilder(
+                                  stream: FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(authUser!.uid)
+                                      .snapshots(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                          child: Text(
+                                              'Error fetching attendance: ${snapshot.error}'));
+                                    }
+                                    final data = snapshot.data?.data();
+                                    if (data != null) {
+                                      final tracking = (data['tracking']
+                                              as Map<String, dynamic>)
+                                          .map(
+                                        (key, value) => MapEntry(
+                                          key,
+                                          (value as List<dynamic>)
+                                              .map((x) =>
+                                                  InOutDuration.fromFirestore(
+                                                      x))
+                                              .toList(),
+                                        ),
+                                      );
+                                      final today = DateTime.now()
+                                          .toIso8601String()
+                                          .substring(0, 10);
+                                      double activeTimeToday = 0;
+                                      if (tracking.containsKey(today)) {
+                                        final todayTracking = tracking[today];
+                                        for (final tracking in todayTracking!) {
+                                          print(tracking.durationInMinutes);
+                                          activeTimeToday +=
+                                              tracking.durationInMinutes ?? 0;
+                                        }
+                                      }
+                                      return Text(
+                                        "${(activeTimeToday / 60).toInt()}hr ${(activeTimeToday % 60).toInt()}min",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    }
+                                    return Text('Loading...');
+                                  })
                             ],
                           ),
                           const SizedBox(height: largeSpacing),

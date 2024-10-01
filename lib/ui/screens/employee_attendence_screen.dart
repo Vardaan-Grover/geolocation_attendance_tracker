@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:geolocation_attendance_tracker/models/user_model.dart';
 import 'package:geolocation_attendance_tracker/ui/screens/checkin_checkout_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class EmployeeAttendanceScreen extends StatefulWidget {
-  final String employeeName;
+  final String userId;
+  final User user;
 
-  const EmployeeAttendanceScreen({super.key, required this.employeeName});
+  const EmployeeAttendanceScreen(
+      {super.key, required this.user, required this.userId});
 
   @override
   State<EmployeeAttendanceScreen> createState() =>
@@ -121,7 +124,7 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
       MaterialPageRoute(
         builder: (context) => CheckInCheckOutScreen(
           date: date,
-          uid: widget.employeeName,
+          uid: widget.userId,
         ),
       ),
     );
@@ -138,7 +141,7 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.employeeName),
+        title: Text(widget.user.fullName),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

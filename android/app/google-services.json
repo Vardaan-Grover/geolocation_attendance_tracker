@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "244079569882",
+    "project_id": "geolocation-attendance-tracker",
+    "storage_bucket": "geolocation-attendance-tracker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:244079569882:android:f1f8a9dc05b1c4b88aaee3",
+        "android_client_info": {
+          "package_name": "com.example.geolocation_attendance_tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "244079569882-7rkdkboiauiim2efdrha259gcr85avo5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClIYdTMn7lfItz4fHXeASszUXWz9MGzN0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "244079569882-7rkdkboiauiim2efdrha259gcr85avo5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "244079569882-3fkl519ihhfj9aejr805trfhsa82lq40.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.geolocationAttendanceTracker"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
